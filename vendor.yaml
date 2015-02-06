@@ -1,0 +1,220 @@
+# Vendored files and directories are excluded from language
+# statistics.
+#
+# Lines in this file are Regexps that are matched against the file
+# pathname.
+#
+# Please add additional test coverage to
+# `test/test_blob.rb#test_vendored` if you make any changes.
+
+## Vendor Conventions ##
+
+# Caches
+- (^|/)cache/
+
+# Dependencies
+- ^[Dd]ependencies/
+
+# C deps
+#  https://github.com/joyent/node
+- ^deps/
+- ^tools/
+- (^|/)configure$
+- (^|/)configure.ac$
+- (^|/)config.guess$
+- (^|/)config.sub$
+
+# Node dependencies
+- node_modules/
+
+# Bower Components
+- bower_components/
+
+# Erlang bundles
+- ^rebar$
+
+# Bootstrap minified css and js
+- (^|/)bootstrap([^.]*)(\.min)?\.(js|css)$
+
+# Foundation css
+- foundation.min.css
+- foundation.css
+
+# Normalize.css
+- normalize.css
+
+# Vendored dependencies
+- thirdparty/
+- vendors?/
+- extern(al)?/
+
+# Debian packaging
+- ^debian/
+
+# Haxelib projects often contain a neko bytecode file named run.n
+- run.n$
+
+## Commonly Bundled JavaScript frameworks ##
+
+# jQuery
+- (^|/)jquery([^.]*)(\.min)?\.js$
+- (^|/)jquery\-\d\.\d+(\.\d+)?(\.min)?\.js$
+
+# jQuery UI
+- (^|/)jquery\-ui(\-\d\.\d+(\.\d+)?)?(\.\w+)?(\.min)?\.(js|css)$
+- (^|/)jquery\.(ui|effects)\.([^.]*)(\.min)?\.(js|css)$
+
+# Prototype
+- (^|/)prototype(.*)\.js$
+- (^|/)effects\.js$
+- (^|/)controls\.js$
+- (^|/)dragdrop\.js$
+
+# Typescript definition files
+- (.*?)\.d\.ts$
+
+# MooTools
+- (^|/)mootools([^.]*)\d+\.\d+.\d+([^.]*)\.js$
+
+# Dojo
+- (^|/)dojo\.js$
+
+# MochiKit
+- (^|/)MochiKit\.js$
+
+# YUI
+- (^|/)yahoo-([^.]*)\.js$
+- (^|/)yui([^.]*)\.js$
+
+# WYS editors
+- (^|/)ckeditor\.js$
+- (^|/)tiny_mce([^.]*)\.js$
+- (^|/)tiny_mce/(langs|plugins|themes|utils)
+
+# MathJax
+- (^|/)MathJax/
+
+# SyntaxHighlighter - http://alexgorbatchev.com/
+- (^|/)shBrush([^.]*)\.js$
+- (^|/)shCore\.js$
+- (^|/)shLegacy\.js$
+
+# AngularJS
+- (^|/)angular([^.]*)(\.min)?\.js$
+
+# D3.js
+- (^|\/)d3(\.v\d+)?([^.]*)(\.min)?\.js$
+
+# React
+- (^|/)react(-[^.]*)?(\.min)?\.js$
+
+# Modernizr
+- (^|/)modernizr\-\d\.\d+(\.\d+)?(\.min)?\.js$
+- (^|/)modernizr\.custom\.\d+\.js$
+
+## Python ##
+
+# django
+- (^|/)admin_media/
+
+# Fabric
+- ^fabfile\.py$
+
+# WAF
+- ^waf$
+
+# .osx
+- ^.osx$
+
+## Obj-C ##
+
+# Cocoapods
+- ^Pods/
+
+# Sparkle
+- (^|/)Sparkle/
+
+## Groovy ##
+
+# Gradle
+- (^|/)gradlew$
+- (^|/)gradlew\.bat$
+- (^|/)gradle/wrapper/
+
+## .NET ##
+
+# Visual Studio IntelliSense
+- -vsdoc\.js$
+- \.intellisense\.js$
+
+# jQuery validation plugin (MS bundles this with asp.net mvc)
+- (^|/)jquery([^.]*)\.validate(\.unobtrusive)?(\.min)?\.js$
+- (^|/)jquery([^.]*)\.unobtrusive\-ajax(\.min)?\.js$
+
+# Microsoft Ajax
+- (^|/)[Mm]icrosoft([Mm]vc)?([Aa]jax|[Vv]alidation)(\.debug)?\.js$
+
+# NuGet
+- ^[Pp]ackages\/.+\.\d+\/
+
+# ExtJS
+- (^|/)extjs/.*?\.js$
+- (^|/)extjs/.*?\.xml$
+- (^|/)extjs/.*?\.txt$
+- (^|/)extjs/.*?\.html$
+- (^|/)extjs/.*?\.properties$
+- (^|/)extjs/.sencha/
+- (^|/)extjs/docs/
+- (^|/)extjs/builds/
+- (^|/)extjs/cmd/
+- (^|/)extjs/examples/
+- (^|/)extjs/locale/
+- (^|/)extjs/packages/
+- (^|/)extjs/plugins/
+- (^|/)extjs/resources/
+- (^|/)extjs/src/
+- (^|/)extjs/welcome/
+
+# Html5shiv
+- (^|/)html5shiv(\.min)?\.js$
+
+# Samples folders
+- ^[Ss]amples/
+
+# LICENSE, README, git config files
+- ^COPYING$
+- LICENSE$
+- License$
+- gitattributes$
+- gitignore$
+- gitmodules$
+- ^README$
+- ^readme$
+
+# Test fixtures
+- ^[Tt]est/fixtures/
+
+# PhoneGap/Cordova
+- (^|/)cordova([^.]*)(\.min)?\.js$
+- (^|/)cordova\-\d\.\d(\.\d)?(\.min)?\.js$
+
+# Vagrant
+- ^Vagrantfile$
+
+# .DS_Store's
+- .[Dd][Ss]_[Ss]tore$
+
+# Mercury --use-subdirs
+- Mercury/
+
+# R packages
+- ^vignettes/
+- ^inst/extdata/
+
+# Octicons
+- octicons.css
+- octicons.min.css
+- sprockets-octicons.scss
+
+# Generated proto files
+- \.pb\.go$
