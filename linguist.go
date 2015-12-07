@@ -91,7 +91,7 @@ func DetectFromContents(contents []byte) string {
 	// their classification data (which is stored in the samples.json
 	// file). Need to do this to properly detect the language for .h
 	// files (C, C++, Objective-C, Objective-C++).
-	return ""
+	return Analyse(contents)
 }
 
 func detectInterpreter(contents []byte) string {

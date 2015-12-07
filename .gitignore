@@ -1,4 +1,6 @@
 *~
 *.test
-.*.swp
+.*.sw*
 .DS_Store
+generate_classifier/out/*
+!generate_classifier/out/.keep
