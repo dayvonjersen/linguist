@@ -1,2 +1,2 @@
 #!/bin/bash
-go run generate_classifier.go | goimports > ../bayesianclassifier.go
+go run generate_classifier.go

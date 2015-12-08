@@ -1,10 +1,10 @@
 package linguist
 
 import (
-	"bytes"
-	"encoding/base64"
-	"regexp"
+	"log"
+	"os"
 
+	"github.com/generaltso/linguist/tokenizer"
 	"github.com/jbrukh/bayesian"
 )
 
@@ -13,15 +13,17 @@ var classifier_initialized bool = false
 
 func GetClassifier() *bayesian.Classifier {
 	if !classifier_initialized {
-		serialized, err := base64.StdEncoding.DecodeString(b64_encoded_serialized_classifier)
-		if err != nil {
-			panic(err.Error())
+		gopath := os.Getenv("GOPATH")
+		if gopath == "" {
+			gopath = os.Getenv("GOROOT")
+			if gopath == "" {
+				log.Fatalln("Could not determine $GOPATH or $GOROOT at runtime\n(Necessary to read data dump for linguist)")
+			}
 		}
-
-		r := bytes.NewReader(serialized)
-		classifier, err = bayesian.NewClassifierFromReader(r)
+		var err error
+		classifier, err = bayesian.NewClassifierFromFile(gopath + "/src/github.com/generaltso/linguist/generate_classifier/out/classifier")
 		if err != nil {
-			panic(err.Error())
+			log.Panicln(err)
 		}
 		classifier_initialized = true
 	}
@@ -29,14 +31,9 @@ func GetClassifier() *bayesian.Classifier {
 }
 
 func Analyse(b []byte) (language string) {
-	// TODO(tso): port github/linguist tokenizer proper
-	// instead of this copout:
-	re := regexp.MustCompile(`\s+`)
-	document := re.Split(string(b), -1)
+	document := tokenizer.Tokenize(b)
 	classifier := GetClassifier()
 	_, id, _ := classifier.LogScores(document)
-	if language, ok := class_map[id]; ok {
-		return language
-	}
-	return ""
+
+    return string(classifier.Classes[id])
 }

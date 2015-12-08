@@ -1,18 +1,17 @@
 package main
 
 import (
-	"bytes"
-	"encoding/base64"
 	"encoding/json"
-	"fmt"
+	"flag"
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
-	"time"
 
+	"github.com/generaltso/linguist/tokenizer"
 	"github.com/jbrukh/bayesian"
 )
+
+var training_dir string
 
 func checkErr(err error) {
 	if err != nil {
@@ -21,6 +20,19 @@ func checkErr(err error) {
 }
 
 func main() {
+	flag.StringVar(&training_dir, "training-dir", "/tmp/linguist/samples", `path to a directory of programming language samples
+from which to train the Naive Bayesian Classifier
+
+this program defaults to using the samples distributed with
+https://github.com/github/linguist
+
+you can use the default setting for this flag and thereby omit it by:
+
+    git clone git@github.com:github/linguist /tmp/linguist
+`)
+
+	flag.Parse()
+
 	log.SetOutput(os.Stderr)
 	log.Println("Opening ../samples.json ...")
 	f, err := os.Open("../samples.json")
@@ -37,45 +49,42 @@ func main() {
 
 	classes := make([]bayesian.Class, 1)
 	documents := make(map[bayesian.Class][]string)
-	results := make(map[int]string)
-	index := 0
 
 	log.Println("Reading data into vars ...")
-	for key, token := range tokens {
+	for key, _ := range tokens {
 		if key == "" {
 			continue
 		}
+		//log.Println("Found Language:", key)
 
-		results[index] = key
-		index++
-
-		key = strings.Replace(key, " ", "_", -1)
-		key = strings.Replace(key, "#", "SHARP", -1)
-		key = strings.Replace(key, "+", "PLUS", -1)
-		key = strings.Replace(key, "-", "DASH", -1)
 		var class bayesian.Class = bayesian.Class(key)
 
 		classes = append(classes, class)
 
-		words := token.(map[string]interface{})
-		w := make([]string, 1)
-		for word, repeat := range words {
-			count := repeat.(float64)
-			for r := 0.0; r < count; r++ {
-				w = append(w, word)
+		w := []string{}
+		sample_dir := training_dir + "/" + key
+		dir, err := os.Open(sample_dir)
+		if os.IsNotExist(err) {
+			log.Println("DIRECTORY NOT FOUND:", sample_dir)
+		} else {
+			files, err := dir.Readdir(-1)
+			checkErr(err)
+			for _, file := range files {
+				if file.IsDir() {
+					log.Println("Skipping subdirectory", sample_dir+"/"+file.Name(), "...")
+					continue
+				}
+				fp := sample_dir + "/" + file.Name()
+				//log.Println("Tokenizing", fp, "...")
+				f, err := os.Open(fp)
+				checkErr(err)
+				contents, err := ioutil.ReadAll(f)
+				checkErr(err)
+				w = append(w, tokenizer.Tokenize(contents)...)
 			}
 		}
 		documents[class] = w
 	}
-
-	log.Println("Generating go code ...")
-
-	fmt.Println("package linguist")
-	fmt.Println("\n// *** DO NOT MODIFY THIS FILE DIRECTLY *** \\\\")
-	fmt.Println("// this file was automatically generated ")
-	fmt.Println("// by generate_classifier.go at")
-	fmt.Printf("// %s\n\n", time.Now())
-    fmt.Printf("var class_map map[int]string = %#v\n", results)
 
 	log.Println("Creating bayesian.Classifier ...")
 	clsf := bayesian.NewClassifier(classes...)
@@ -85,15 +94,6 @@ func main() {
 
 	log.Println("Serializing and exporting bayesian.Classifier into ./out/classifier ...")
 	checkErr(clsf.WriteToFile("./out/classifier"))
-
-	var buf bytes.Buffer
-	b64 := base64.NewEncoder(base64.StdEncoding, &buf)
-	checkErr(clsf.WriteTo(b64))
-
-	log.Println("Generating more go code...")
-	b64_data, err := ioutil.ReadAll(&buf)
-	checkErr(err)
-	fmt.Printf("var b64_encoded_serialized_classifier string = `%s`", string(b64_data))
 
 	log.Println("Done.")
 }
