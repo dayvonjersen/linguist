@@ -31,6 +31,7 @@ var (
 	extensions   = map[string][]string{}
 	filenames    = map[string][]string{}
 	interpreters = map[string][]string{}
+	colors       = map[string]string{}
 
 	shebangRE       = regexp.MustCompile(`^#!\s*(\S+)(?:\s+(\S+))?.*`)
 	scriptVersionRE = regexp.MustCompile(`((?:\d+\.?)+)`)
@@ -41,6 +42,7 @@ func init() {
 		Extensions   []string `yaml:"extensions,omitempty"`
 		Filenames    []string `yaml:"filenames,omitempty"`
 		Interpreters []string `yaml:"interpreters,omitempty"`
+		Color        string   `yaml:"color,omitempty"`
 	}
 	languages := map[string]*language{}
 
@@ -59,6 +61,7 @@ func init() {
 		for _, i := range l.Interpreters {
 			interpreters[i] = append(interpreters[i], n)
 		}
+		colors[n] = l.Color
 	}
 }
 
