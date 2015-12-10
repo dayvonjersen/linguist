@@ -13,6 +13,7 @@ import (
 // NOTE(tso): these are incomplete lists and should be added to
 var ignore_mimetype []string = []string{
 	"application/octet-stream",
+	"application/x-executable",
 }
 
 // categories of mimetype (the part before the first /) to ignore

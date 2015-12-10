@@ -89,9 +89,7 @@ func main() {
 	}
 
 	if input_mode_fs {
-		if fileExists(".git") {
-			initGitIgnore()
-		}
+		initGitIgnore()
 		processDir(".")
 	}
 

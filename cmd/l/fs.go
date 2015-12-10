@@ -12,7 +12,7 @@ import (
 var isIgnored func(string) bool
 
 func initGitIgnore() {
-	if fileExists(".gitignore") {
+	if fileExists(".git") && fileExists(".gitignore") {
 		gitIgn, err := ignore.NewGitIgn(".gitignore")
 		checkErr(err)
 		gitIgn.Start(".")

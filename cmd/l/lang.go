@@ -39,7 +39,7 @@ func getLangFromFilename(filename string) (language string, shouldIgnore bool) {
 func getLangFromContents(contents []byte) (language string, shouldIgnore bool) {
 	mimetype, shouldIgnore := linguist.DetectMimeFromContents(contents)
 	log.Println(mimetype)
-	if shouldIgnore {
+	if mimetype != "" {
 		return mimetype, shouldIgnore
 	}
 
