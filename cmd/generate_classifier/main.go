@@ -95,7 +95,7 @@ you can use the default setting for this flag and thereby omit it by:
 		clsf.Learn(dox, cls)
 	}
 
-	log.Println("Serializing and exporting bayesian.Classifier into ./data/classifier ...")
+	log.Println("Serializing and exporting bayesian.Classifier into ../data/classifier ...")
 	checkErr(clsf.WriteToFile("../data/classifier"))
 
 	log.Println("Done.")

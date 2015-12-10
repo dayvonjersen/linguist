@@ -44,7 +44,7 @@ func init() {
 	}
 	languages := map[string]*language{}
 
-	bytes := []byte(Files["languages.yaml"])
+	bytes := []byte(files["languages.yaml"])
 	if err := yaml.Unmarshal(bytes, languages); err != nil {
 		log.Fatal(err)
 	}
@@ -87,11 +87,6 @@ func DetectFromContents(contents []byte) string {
 			return l[0]
 		}
 	}
-	// TODO(pmattis): Linguist falls back to using a bayesian classifier
-	// at this point. Wouldn't be hard too do something similar using
-	// their classification data (which is stored in the samples.json
-	// file). Need to do this to properly detect the language for .h
-	// files (C, C++, Objective-C, Objective-C++).
 	return Analyse(contents)
 }
 

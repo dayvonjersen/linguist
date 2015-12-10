@@ -10,14 +10,14 @@ import (
 
 // full mimetype strings to ignore
 //
-// these are incomplete lists and should be added to
+// NOTE(tso): these are incomplete lists and should be added to
 var ignore_mimetype []string = []string{
 	"application/octet-stream",
 }
 
 // categories of mimetype (the part before the first /) to ignore
 //
-// these are incomplete lists and should be added to
+// NOTE(tso): these are incomplete lists and should be added to
 var ignore_mimetype_start []string = []string{
 	"image",
 	"audio",
@@ -26,7 +26,7 @@ var ignore_mimetype_start []string = []string{
 
 func shouldIgnoreMime(mimetype string) bool {
 	if mimetype == "" {
-		return true
+		return false
 	}
 	for _, ign := range ignore_mimetype {
 		if mimetype == ign {
@@ -45,17 +45,9 @@ func shouldIgnoreMime(mimetype string) bool {
 
 // DetectMimeFromFilename detects the mimetype of the file given by filename
 //
-// returning the mimetype string, or the empty string on failure
+// Returns the mimetype string, or the empty string on failure
 //
-// and whether it should be ignored, true if:
-//  - true if it is a known binary mimetype and therefore should
-//    not be processed by DetectFromContents
-//  - true if the mimetype could not be detected
-//  - false otherwise
-//
-// this function will attempt to read the file given by filename
-// and will return "", true, and the error if one is encountered,
-// otherwise err will be nil
+// shouldIgnore will be true iff the mimetype matches known binary formats
 func DetectMimeFromFilename(filename string) (mimetype string, shouldIgnore bool) {
 	ext := filepath.Ext(filename)
 	if ext != "" {
@@ -67,6 +59,12 @@ func DetectMimeFromFilename(filename string) (mimetype string, shouldIgnore bool
 	return "", false
 }
 
+
+// DetectMimeFromContents detects the mimetype based on the contents given
+//
+// Returns the mimetype string, or the empty string on failure
+//
+// shouldIgnore will be true iff the mimetype matches known binary formats
 func DetectMimeFromContents(contents []byte) (mimetype string, shouldIgnore bool) {
 	by_contents := magic.MIMEType(contents)
 	if by_contents != "" {

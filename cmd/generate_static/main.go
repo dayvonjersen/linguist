@@ -32,7 +32,7 @@ func bake() error {
 	defer f.Close()
 	w := bufio.NewWriter(f)
 	fmt.Fprintf(w, "%v\n\npackage linguist\n\n", warning)
-	fmt.Fprintf(w, "var Files = map[string]string{\n")
+	fmt.Fprintf(w, "var files = map[string]string{\n")
 	for i := 1; i < len(os.Args); i++ {
 		fn := os.Args[i]
 		b, err := ioutil.ReadFile(fn)

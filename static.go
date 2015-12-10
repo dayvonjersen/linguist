@@ -2,7 +2,7 @@
 
 package linguist
 
-var Files = map[string]string{
+var files = map[string]string{
 	"../data/languages.yaml": `# Defines all Languages known to GitHub.
 #
 # type              - Either data, programming, markup, prose, or nil

@@ -27,7 +27,7 @@ var vendorRE *regexp.Regexp
 
 func init() {
 	var regexps []string
-	bytes := []byte(Files["vendor.yaml"])
+	bytes := []byte(files["vendor.yaml"])
 	if err := yaml.Unmarshal(bytes, &regexps); err != nil {
 		log.Fatal(err)
 		return
@@ -38,6 +38,8 @@ func init() {
 
 // IsVendored returns true if path is considered "vendored" and should
 // be excluded from statistics.
+//
+// See also the data/vendor.yaml file distributed with this package.
 func IsVendored(path string) bool {
 	return vendorRE.MatchString(path)
 }
