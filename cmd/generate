@@ -1,0 +1,3 @@
+#!/bin/bash
+go run generate_static/main.go ../data/languages.yaml ../data/vendor.yaml
+go run generate_classifier/main.go

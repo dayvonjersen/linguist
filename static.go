@@ -3,7 +3,7 @@
 package linguist
 
 var Files = map[string]string{
-	"languages.yaml": `# Defines all Languages known to GitHub.
+	"../data/languages.yaml": `# Defines all Languages known to GitHub.
 #
 # type              - Either data, programming, markup, prose, or nil
 # aliases           - An Array of additional aliases (implicitly
@@ -3955,7 +3955,7 @@ xBase:
   ace_mode: text
 `,
 
-	"vendor.yaml": `# Vendored files and directories are excluded from language
+	"../data/vendor.yaml": `# Vendored files and directories are excluded from language
 # statistics.
 #
 # Lines in this file are Regexps that are matched against the file

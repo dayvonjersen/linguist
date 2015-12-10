@@ -25,8 +25,6 @@ import (
 	"gopkg.in/yaml.v1"
 )
 
-//go:generate go run makestatic.go languages.yaml vendor.yaml
-
 var (
 	extensions   = map[string][]string{}
 	filenames    = map[string][]string{}
