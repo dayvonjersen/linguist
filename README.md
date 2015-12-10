@@ -1,6 +1,6 @@
 # linguist
 
-Port of [github linguist](https://github.com/github/linguist) to Go. Not complete **but we're getting there...**
+Port of [github linguist](https://github.com/github/linguist) to Go. Not complete *but we're getting there...*
 
 Many thanks to @petermattis for this comment:
 
@@ -19,6 +19,24 @@ Which allowed me to find this library:
 You can blame that and/or the amateurish tokenizer I wrote for any inaccurate results.
 
 See cmd/l for a reference implementation command-line tool.
+
+## Known Issues
+
+1. Using the bayesian classifier should be treated as a last ditch effort, unless you have massive amounts of code on which to train the classifier. Right now it often gives erroneous results and seems to have an unhealthy affinity for the [M language](https://enwp.org/M_programming_language_(disambiguation))
+
+ - more/better programming language sample data
+
+ - find a way to embed the classifier into this package rather than rely on filesystem or hosted 3rd parties
+
+2. I added mimetype detection to this so that you can prevent feeding the classifier giant gobs of binary data with no hope of getting a valid answer. However:
+
+ - mimetypes have no associated "language", even though mimetypes like text/x-perl exist... (need to make an associative list)
+
+ - mimemagic support works on my machine<sup>tm</sup> currently (need to ensure cross-platform)
+
+3. It's possible for known file extensions to have multiple associated languages, see the source for DetectFromFilename in linguist.go
+
+ - Should be able to pass "hints" to DetectFromContents and sort through the `scores` value returned by bayesian.Classifier.GetLogScores
 
 ###### [godocdown](https://github.com/robertkrimen/godocdown) >> README.md
 # linguist
@@ -67,6 +85,9 @@ Returns the mimetype string, or the empty string on failure
 
 shouldIgnore will be true iff the mimetype matches known binary formats
 
+This function uses the github.com/rakyll/magicmime library and may not be
+compatible with your system
+
 #### func  DetectMimeFromFilename
 
 ```go
@@ -77,6 +98,9 @@ DetectMimeFromFilename detects the mimetype of the file given by filename
 Returns the mimetype string, or the empty string on failure
 
 shouldIgnore will be true iff the mimetype matches known binary formats
+
+This function uses the golang.org/pkg/mime library and should be relatively safe
+to use, but not very robust
 
 #### func  GetColor
 

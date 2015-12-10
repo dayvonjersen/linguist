@@ -63,9 +63,50 @@ By default, this tool will use `-git` behavior if a `.git` directory exists, oth
 
 > Output Results in JSON format.
 
+```
+tso@chopstick ~/sirupeuse (master) $ l -json -limit 3
+[
+  {
+    "Language": "SVG",
+    "Percent": 38.07195038817389
+  },
+  {
+    "Language": "HTML",
+    "Percent": 20.51148776433667
+  },
+  {
+    "Language": "JavaScript",
+    "Percent": 18.27789994256565
+  }
+]
+```
+
 ### -json-with-colors
 
 > Output Results in JSON format, including any HTML color codes defined for associated languages.
+
+```
+tso@chopstick ~/sirupeuse (master) $ l -json-with-colors -limit 3
+[
+  {
+    "Language": "SVG",
+    "Percent": 38.07195038817389,
+    "Color": ""
+  },
+  {
+    "Language": "HTML",
+    "Percent": 20.51148776433667,
+    "Color": "#e44b23"
+  },
+  {
+    "Language": "JavaScript",
+    "Percent": 18.27789994256565,
+    "Color": "#f1e05a"
+  }
+]
+```
+
+Please note that `Color` will be the empty string `""` if no color is associated with the language.
 
 ### -limit n
 

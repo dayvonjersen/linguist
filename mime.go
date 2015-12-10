@@ -48,12 +48,17 @@ func shouldIgnoreMime(mimetype string) bool {
 // Returns the mimetype string, or the empty string on failure
 //
 // shouldIgnore will be true iff the mimetype matches known binary formats
+//
+// This function uses the golang.org/pkg/mime library
+// and should be relatively safe to use, but not very robust
 func DetectMimeFromFilename(filename string) (mimetype string, shouldIgnore bool) {
 	ext := filepath.Ext(filename)
 	if ext != "" {
 		by_ext := mime.TypeByExtension(ext)
 		if by_ext != "" {
-			return by_ext, shouldIgnoreMime(by_ext)
+			splix := strings.Split(by_ext, ";")
+			mr_mime := strings.TrimSpace(splix[0])
+			return mr_mime, shouldIgnoreMime(mr_mime)
 		}
 	}
 	return "", false
@@ -64,9 +69,12 @@ func DetectMimeFromFilename(filename string) (mimetype string, shouldIgnore bool
 // Returns the mimetype string, or the empty string on failure
 //
 // shouldIgnore will be true iff the mimetype matches known binary formats
+//
+// This function uses the github.com/rakyll/magicmime library
+// and may not be compatible with your system
 func DetectMimeFromContents(contents []byte) (mimetype string, shouldIgnore bool) {
-    magicmime.Open(magicmime.MAGIC_MIME_TYPE)
-    defer magicmime.Close()
+	magicmime.Open(magicmime.MAGIC_MIME_TYPE)
+	defer magicmime.Close()
 	by_contents, err := magicmime.TypeByBuffer(contents)
 	if err != nil {
 		println(err.Error())

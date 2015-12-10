@@ -1,12 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"sort"
+
+	"github.com/generaltso/linguist"
 )
 
 func checkErr(err error) {
@@ -23,6 +26,17 @@ var output_json bool
 var output_json_with_colors bool
 var output_limit int
 var output_debug bool
+
+type language struct {
+	Language string
+	Percent  float64
+}
+
+type language_color struct {
+	Language string
+	Percent  float64
+	Color    string
+}
 
 func main() {
 	var default_input_mode_git bool
@@ -55,10 +69,10 @@ func main() {
 		input_mode_fs = default_input_mode_fs
 	}
 
-    if !input_mode_git && input_git_tree != "HEAD" {
-        input_mode_git = true
-        input_mode_fs = false
-    }
+	if !input_mode_git && input_git_tree != "HEAD" {
+		input_mode_git = true
+		input_mode_fs = false
+	}
 
 	if input_mode_git && input_mode_fs {
 		fmt.Println("Please choose one of -git or -fs as flags, but not both.")
@@ -95,6 +109,25 @@ func main() {
 
 	sort.Sort(sort.Reverse(sort.Float64Slice(results)))
 
+	if output_json {
+		out := []interface{}{}
+		for i, percent := range results {
+			if output_limit > 0 && i >= output_limit {
+				break
+			}
+			var l interface{}
+			if output_json_with_colors {
+				l = language_color{qqq[percent], percent, linguist.GetColor(qqq[percent])}
+			} else {
+				l = language{qqq[percent], percent}
+			}
+			out = append(out, l)
+		}
+		j, err := json.MarshalIndent(out, "", "  ")
+		checkErr(err)
+		fmt.Println(string(j))
+		os.Exit(0)
+	}
 	fmtstr := fmt.Sprintf("%% %ds", max_len)
 	fmtstr += ": %07.4f%%\n"
 
@@ -104,5 +137,5 @@ func main() {
 		}
 		fmt.Printf(fmtstr, qqq[percent], percent)
 	}
-	fmt.Printf("---\n%d languages detected in %d files\n", len(langs), num_files)
+	fmt.Printf("\n%d languages detected in %d files\n", len(langs), num_files)
 }
