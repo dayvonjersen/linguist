@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 	"strconv"
@@ -12,6 +13,9 @@ import (
 func gitcmd(args string) []byte {
 	git := exec.Command("sh", "-c", "git "+args)
 	out, err := git.CombinedOutput()
+	if err != nil {
+		fmt.Println(string(out))
+	}
 	checkErr(err)
 	return out
 }
@@ -38,6 +42,7 @@ func processTree(tree_id string) {
 
 		switch ftype {
 		case "tree":
+			log.Println("entering subtree", fname)
 			processTree(fhash)
 		case "blob":
 			cat_size := gitcmdString("cat-file -s " + fhash)
@@ -45,9 +50,11 @@ func processTree(tree_id string) {
 			checkErr(err)
 
 			if size == 0 {
+				log.Println("omitting empty file", fname)
 				continue
 			}
 			if linguist.IsVendored(fname) {
+				log.Println("omitting vendored file", fname)
 				continue
 			}
 
@@ -57,6 +64,7 @@ func processTree(tree_id string) {
 				log.Println("Ignoring", fname)
 				continue
 			} else if by_name != "" {
+				log.Println("got result by name: ", by_name)
 				putResult(by_name, size)
 				continue
 			}
@@ -68,13 +76,17 @@ func processTree(tree_id string) {
 				log.Println("Ignoring", fname)
 				continue
 			} else if by_data != "" {
+				log.Println("got result by data: ", by_data)
 				putResult(by_data, size)
 				continue
 			}
-
+			log.Println("got no result for: ", fname)
 			putResult("(unknown)", size)
+		case "commit":
+			log.Println("omitting commit", fname)
+			continue
 		default:
-			println("unsupported ftype:" + ftype)
+			println("currently unsupported ftype:" + ftype)
 		}
 	}
 }

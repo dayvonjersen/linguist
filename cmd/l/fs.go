@@ -13,6 +13,7 @@ var isIgnored func(string) bool
 
 func initGitIgnore() {
 	if fileExists(".git") && fileExists(".gitignore") {
+		log.Println("found .git directory and .gitignore")
 		gitIgn, err := ignore.NewGitIgn(".gitignore")
 		checkErr(err)
 		gitIgn.Start(".")
@@ -20,6 +21,7 @@ func initGitIgnore() {
 			return gitIgn.TestIgnore(filename)
 		}
 	} else {
+		log.Println("no .gitignore found")
 		isIgnored = func(filename string) bool {
 			return false
 		}
@@ -28,14 +30,17 @@ func initGitIgnore() {
 
 // shoutouts to php
 func fileGetContents(filename string) []byte {
+	log.Println("reading contents of", filename)
 	contents, err := ioutil.ReadFile(filename)
 	checkErr(err)
 	return contents
 }
 func fileExists(filename string) bool {
+	log.Println("opening file", filename)
 	g, err := os.Open(filename)
 	g.Close()
 	if os.IsNotExist(err) {
+		log.Println(filename, "does not exist")
 		return false
 	}
 	checkErr(err)

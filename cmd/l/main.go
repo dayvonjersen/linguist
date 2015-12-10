@@ -39,16 +39,6 @@ type language_color struct {
 }
 
 func main() {
-	var default_input_mode_git bool
-	var default_input_mode_fs bool
-	if fileExists(".git") {
-		default_input_mode_git = true
-		default_input_mode_fs = false
-	} else {
-		default_input_mode_git = false
-		default_input_mode_fs = true
-	}
-
 	flag.BoolVar(&output_debug, "debug", false, "Print debug information.")
 	flag.BoolVar(&input_mode_git, "git", false, "Scan for files using git ls-tree and cat-file, rather than filesystem.")
 	flag.BoolVar(&input_mode_fs, "fs", false, "Scan for files using filesystem.")
@@ -62,6 +52,16 @@ func main() {
 
 	if !output_debug {
 		log.SetOutput(ioutil.Discard)
+	}
+
+	var default_input_mode_git bool
+	var default_input_mode_fs bool
+	if fileExists(".git") {
+		default_input_mode_git = true
+		default_input_mode_fs = false
+	} else {
+		default_input_mode_git = false
+		default_input_mode_fs = true
 	}
 
 	if !input_mode_git && !input_mode_fs {
@@ -86,7 +86,7 @@ func main() {
 			}
 			return "undefined"
 		}())
-        os.Exit(1)
+		os.Exit(1)
 	}
 
 	if input_mode_fs {
