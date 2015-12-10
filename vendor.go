@@ -27,7 +27,7 @@ var vendorRE *regexp.Regexp
 
 func init() {
 	var regexps []string
-	bytes := []byte(files["vendor.yaml"])
+	bytes := []byte(files["data/vendor.yaml"])
 	if err := yaml.Unmarshal(bytes, &regexps); err != nil {
 		log.Fatal(err)
 		return

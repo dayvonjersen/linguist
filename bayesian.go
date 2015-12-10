@@ -12,11 +12,11 @@ var classifier *bayesian.Classifier
 var classifier_initialized bool = false
 
 // Gets the baysian.Classifier which has been trained on programming language
-// samples from github.com/github/linguist after running the generator found 
+// samples from github.com/github/linguist after running the generator found
 // in cmd/generate_classifier/main.go
 //
-// NOTE(tso): github.com/jbrukh/bayesian provides the mechanism for 
-// serialization/deserialization of Classifier objects. After many failed 
+// NOTE(tso): github.com/jbrukh/bayesian provides the mechanism for
+// serialization/deserialization of Classifier objects. After many failed
 // attempts to serialize this data *directly* into this package, both as a
 // base64 encoded string and exporting the structure from bayesian.Classifier
 // with an old-fashioned %#v (really bad idea), I have resorted to using the
@@ -53,5 +53,5 @@ func Analyse(contents []byte) (language string) {
 	document := tokenizer.Tokenize(contents)
 	classifier := getClassifier()
 	_, id, _ := classifier.LogScores(document)
-    return string(classifier.Classes[id])
+	return string(classifier.Classes[id])
 }

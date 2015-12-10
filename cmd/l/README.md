@@ -26,6 +26,10 @@ Markdown: 01.0001%
 
 #### flags:
 
+### -debug
+
+> Print debug information.
+
 ### -git
 
 > Scan for files using git ls-tree and cat-file, rather than filesystem.

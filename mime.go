@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"camlistore.org/pkg/magic"
+	"github.com/rakyll/magicmime"
 )
 
 // full mimetype strings to ignore
@@ -59,14 +59,18 @@ func DetectMimeFromFilename(filename string) (mimetype string, shouldIgnore bool
 	return "", false
 }
 
-
 // DetectMimeFromContents detects the mimetype based on the contents given
 //
 // Returns the mimetype string, or the empty string on failure
 //
 // shouldIgnore will be true iff the mimetype matches known binary formats
 func DetectMimeFromContents(contents []byte) (mimetype string, shouldIgnore bool) {
-	by_contents := magic.MIMEType(contents)
+    magicmime.Open(magicmime.MAGIC_MIME_TYPE)
+    defer magicmime.Close()
+	by_contents, err := magicmime.TypeByBuffer(contents)
+	if err != nil {
+		println(err.Error())
+	}
 	if by_contents != "" {
 		return by_contents, shouldIgnoreMime(by_contents)
 	}

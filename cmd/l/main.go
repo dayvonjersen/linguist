@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"sort"
 )
@@ -20,6 +22,7 @@ var input_git_tree string
 var output_json bool
 var output_json_with_colors bool
 var output_limit int
+var output_debug bool
 
 func main() {
 	var default_input_mode_git bool
@@ -32,8 +35,9 @@ func main() {
 		default_input_mode_fs = true
 	}
 
-	flag.BoolVar(&input_mode_git, "git", default_input_mode_git, "Scan for files using git ls-tree and cat-file, rather than filesystem.")
-	flag.BoolVar(&input_mode_fs, "fs", default_input_mode_fs, "Scan for files using filesystem.")
+	flag.BoolVar(&output_debug, "debug", false, "Print debug information.")
+	flag.BoolVar(&input_mode_git, "git", false, "Scan for files using git ls-tree and cat-file, rather than filesystem.")
+	flag.BoolVar(&input_mode_fs, "fs", false, "Scan for files using filesystem.")
 	flag.StringVar(&input_git_tree, "git-tree", "HEAD", "tree-ish root to scan. See also man git(1).")
 	flag.BoolVar(&output_json, "json", false, "Output results in JSON format.")
 	flag.BoolVar(&output_json_with_colors, "json-with-colors", false, "Output results in JSON format, including any HTML color codes defined for associated languages.")
@@ -42,21 +46,45 @@ func main() {
 
 	output_json = output_json || output_json_with_colors
 
-	if input_mode_git && input_mode_fs || (input_mode_git == false && input_mode_fs == false) {
-		input_mode_git = !default_input_mode_git
-		input_mode_fs = !default_input_mode_fs
+	if !output_debug {
+		log.SetOutput(ioutil.Discard)
 	}
 
-	switch true {
-	case input_mode_git:
-		processTree(input_git_tree)
-	case input_mode_fs:
-		initGitIgnore()
+	if !input_mode_git && !input_mode_fs {
+		input_mode_git = default_input_mode_git
+		input_mode_fs = default_input_mode_fs
+	}
+
+    if !input_mode_git && input_git_tree != "HEAD" {
+        input_mode_git = true
+        input_mode_fs = false
+    }
+
+	if input_mode_git && input_mode_fs {
+		fmt.Println("Please choose one of -git or -fs as flags, but not both.")
+		fmt.Println("You can omit the flags to get the default behavior,")
+		fmt.Printf("which for the current directory is ", func() string {
+			switch {
+			case default_input_mode_git:
+				return "git"
+			case default_input_mode_fs:
+				return "fs"
+			}
+			return "undefined"
+		}())
+	}
+
+	if input_mode_fs {
+		if fileExists(".git") {
+			initGitIgnore()
+		}
 		processDir(".")
 	}
 
-	fmtstr := fmt.Sprintf("%% %ds", max_len)
-	fmtstr += ": %07.4f%%\n"
+	if input_mode_git {
+		processTree(input_git_tree)
+	}
+
 	results := []float64{}
 	qqq := map[float64]string{}
 	for lang, num := range langs {
@@ -64,9 +92,17 @@ func main() {
 		results = append(results, res)
 		qqq[res] = lang
 	}
+
 	sort.Sort(sort.Reverse(sort.Float64Slice(results)))
-	for _, percent := range results {
+
+	fmtstr := fmt.Sprintf("%% %ds", max_len)
+	fmtstr += ": %07.4f%%\n"
+
+	for i, percent := range results {
+		if output_limit > 0 && i >= output_limit {
+			break
+		}
 		fmt.Printf(fmtstr, qqq[percent], percent)
 	}
-	fmt.Printf("---\n%d languages detected in %d bytes of %d files\n", len(langs), total_size, num_files)
+	fmt.Printf("---\n%d languages detected in %d files\n", len(langs), num_files)
 }

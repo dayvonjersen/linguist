@@ -1,6 +1,10 @@
 package main
 
-import "github.com/generaltso/linguist"
+import (
+	"log"
+
+	"github.com/generaltso/linguist"
+)
 
 var langs map[string]int = make(map[string]int)
 var total_size int = 0
@@ -18,30 +22,31 @@ func putResult(language string, size int) {
 	}
 }
 
-func getLangFromFilename(filename string) string {
-	res1 := linguist.DetectFromFilename(filename)
-	if res1 != "" {
-		return res1
+func getLangFromFilename(filename string) (language string, shouldIgnore bool) {
+	language = linguist.DetectFromFilename(filename)
+	if language != "" {
+		return language, false
 	}
 
 	mimetype, shouldIgnore := linguist.DetectMimeFromFilename(filename)
-	if shouldIgnore {
-		return mimetype
+	if mimetype != "" {
+		return mimetype, shouldIgnore
 	}
 
-	return ""
+	return "", false
 }
 
-func getLangFromContents(contents []byte) string {
-	//	mimetype, shouldIgnore := linguist.DetectMimeFromContents(contents)
-	//	if shouldIgnore {
-	//		return mimetype
-	//	}
-
-	language := linguist.DetectFromContents(contents)
-	if language != "" {
-		return language
+func getLangFromContents(contents []byte) (language string, shouldIgnore bool) {
+	mimetype, shouldIgnore := linguist.DetectMimeFromContents(contents)
+	log.Println(mimetype)
+	if shouldIgnore {
+		return mimetype, shouldIgnore
 	}
 
-	return ""
+	language = linguist.DetectFromContents(contents)
+	if language != "" {
+		return language, false
+	}
+
+	return "", false
 }

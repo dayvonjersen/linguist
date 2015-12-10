@@ -37,14 +37,14 @@ you can use the default setting for this flag and thereby omit it by:
 	flag.Parse()
 
 	log.SetOutput(os.Stderr)
-	log.Println("Opening ../data/samples.json ...")
-	f, err := os.Open("../data/samples.json")
+	log.Println("Opening data/samples.json ...")
+	f, err := os.Open("data/samples.json")
 	checkErr(err)
-	log.Println("Reading ../data/samples.json ...")
+	log.Println("Reading data/samples.json ...")
 	b, err := ioutil.ReadAll(f)
 	checkErr(err)
 
-	log.Println("Unmarshaling ../data/samples.json ...")
+	log.Println("Unmarshaling data/samples.json ...")
 	var dat map[string]interface{}
 	checkErr(json.Unmarshal(b, &dat))
 
@@ -95,8 +95,8 @@ you can use the default setting for this flag and thereby omit it by:
 		clsf.Learn(dox, cls)
 	}
 
-	log.Println("Serializing and exporting bayesian.Classifier into ../data/classifier ...")
-	checkErr(clsf.WriteToFile("../data/classifier"))
+	log.Println("Serializing and exporting bayesian.Classifier into data/classifier ...")
+	checkErr(clsf.WriteToFile("data/classifier"))
 
 	log.Println("Done.")
 }

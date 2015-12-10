@@ -44,7 +44,7 @@ func init() {
 	}
 	languages := map[string]*language{}
 
-	bytes := []byte(files["languages.yaml"])
+	bytes := []byte(files["data/languages.yaml"])
 	if err := yaml.Unmarshal(bytes, languages); err != nil {
 		log.Fatal(err)
 	}

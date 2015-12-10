@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/generaltso/linguist"
@@ -48,34 +49,51 @@ func processDir(dirname string) {
 	checkErr(err)
 	checkErr(os.Chdir(dirname))
 	for _, file := range files {
+		log.Println("with file: ", file.Name())
 		//abs, err := filepath.Abs(file.Name())
 		//checkErr(err)
 		size := int(file.Size())
 		if size == 0 {
+			log.Println("size is 0 for", file.Name())
 			continue
 		}
 		if isIgnored(dirname + string(os.PathSeparator) + file.Name()) {
+			log.Println(file.Name(), "is ignored")
 			continue
 		}
 		if file.IsDir() {
 			if file.Name() == ".git" {
+				log.Println("skipping .git directory")
 				continue
 			}
 			processDir(file.Name())
 		} else if !linguist.IsVendored(file.Name()) {
-			by_name := getLangFromFilename(file.Name())
-			if by_name != "" {
+			by_name, shouldIgnore := getLangFromFilename(file.Name())
+			if shouldIgnore {
+				log.Println("DetectMimeFromFilename says to ignore type: ", by_name)
+				log.Println("Ignoring", file.Name())
+				continue
+			} else if by_name != "" {
+				log.Println("got result by name: ", by_name)
 				putResult(by_name, size)
 				continue
 			}
 
-			by_data := getLangFromContents(fileGetContents(file.Name()))
-			if by_data != "" {
+			by_data, shouldIgnore := getLangFromContents(fileGetContents(file.Name()))
+			if shouldIgnore {
+				log.Println("DetectMimeFromContents says to ignore type: ", by_data)
+				log.Println("Ignoring", file.Name())
+				continue
+			} else if by_data != "" {
+				log.Println("got result by data: ", by_data)
 				putResult(by_data, size)
 				continue
 			}
 
+			log.Println("got no result for: ", file.Name())
 			putResult("(unknown)", size)
+		} else {
+			log.Println(file.Name(), "is vendored")
 		}
 	}
 	checkErr(os.Chdir(".."))

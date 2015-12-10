@@ -3,7 +3,7 @@
 package linguist
 
 var files = map[string]string{
-	"../data/languages.yaml": `# Defines all Languages known to GitHub.
+	"data/languages.yaml": `# Defines all Languages known to GitHub.
 #
 # type              - Either data, programming, markup, prose, or nil
 # aliases           - An Array of additional aliases (implicitly
@@ -28,7 +28,7 @@ var files = map[string]string{
 #                     in the statistics as the parent language.
 #
 # Any additions or modifications (even trivial) should have corresponding
-# test change in `+"`"+`test/test_blob.rb`+"`"+`.
+# test change in ` + "`" + `test/test_blob.rb` + "`" + `.
 #
 # Please keep this list alphabetized. Capitalization comes before lower case.
 
@@ -3955,14 +3955,14 @@ xBase:
   ace_mode: text
 `,
 
-	"../data/vendor.yaml": `# Vendored files and directories are excluded from language
+	"data/vendor.yaml": `# Vendored files and directories are excluded from language
 # statistics.
 #
 # Lines in this file are Regexps that are matched against the file
 # pathname.
 #
 # Please add additional test coverage to
-# `+"`"+`test/test_blob.rb#test_vendored`+"`"+` if you make any changes.
+# ` + "`" + `test/test_blob.rb#test_vendored` + "`" + ` if you make any changes.
 
 ## Vendor Conventions ##
 
@@ -4260,5 +4260,4 @@ xBase:
 # Android Google APIs
 - (^|/)\.google_apis/
 `,
-
 }

@@ -25,7 +25,7 @@ func main() {
 }
 
 func bake() error {
-	f, err := os.Create("../static.go")
+	f, err := os.Create("static.go")
 	if err != nil {
 		return err
 	}

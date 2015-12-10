@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -50,15 +51,23 @@ func processTree(tree_id string) {
 				continue
 			}
 
-			by_name := getLangFromFilename(fname)
-			if by_name != "" {
+			by_name, shouldIgnore := getLangFromFilename(fname)
+			if shouldIgnore {
+				log.Println("DetectMimeFromFilename says to ignore type: ", by_name)
+				log.Println("Ignoring", fname)
+				continue
+			} else if by_name != "" {
 				putResult(by_name, size)
 				continue
 			}
 
 			cat_data := gitcmd("cat-file blob " + fhash)
-			by_data := getLangFromContents(cat_data)
-			if by_data != "" {
+			by_data, shouldIgnore := getLangFromContents(cat_data)
+			if shouldIgnore {
+				log.Println("DetectMimeFromContents says to ignore type: ", by_data)
+				log.Println("Ignoring", fname)
+				continue
+			} else if by_data != "" {
 				putResult(by_data, size)
 				continue
 			}
