@@ -77,7 +77,7 @@ func main() {
 	if input_mode_git && input_mode_fs {
 		fmt.Println("Please choose one of -git or -fs as flags, but not both.")
 		fmt.Println("You can omit the flags to get the default behavior,")
-		fmt.Printf("which for the current directory is ", func() string {
+		fmt.Printf("which for the current directory is %s\n", func() string {
 			switch {
 			case default_input_mode_git:
 				return "git"
@@ -86,6 +86,7 @@ func main() {
 			}
 			return "undefined"
 		}())
+        os.Exit(1)
 	}
 
 	if input_mode_fs {
