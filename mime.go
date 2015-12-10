@@ -1,7 +1,6 @@
 package linguist
 
 import (
-	"io/ioutil"
 	"mime"
 	"path/filepath"
 	"strings"
@@ -57,23 +56,21 @@ func shouldIgnoreMime(mimetype string) bool {
 // this function will attempt to read the file given by filename
 // and will return "", true, and the error if one is encountered,
 // otherwise err will be nil
-func DetectMimeFromFilename(filename string) (mimetype string, shouldIgnore bool, err error) {
+func DetectMimeFromFilename(filename string) (mimetype string, shouldIgnore bool) {
 	ext := filepath.Ext(filename)
 	if ext != "" {
 		by_ext := mime.TypeByExtension(ext)
 		if by_ext != "" {
-			return by_ext, shouldIgnoreMime(by_ext), nil
+			return by_ext, shouldIgnoreMime(by_ext)
 		}
 	}
+	return "", false
+}
 
-	contents, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return "", true, err
-	}
-
+func DetectMimeFromContents(contents []byte) (mimetype string, shouldIgnore bool) {
 	by_contents := magic.MIMEType(contents)
 	if by_contents != "" {
-		return by_contents, shouldIgnoreMime(by_contents), nil
+		return by_contents, shouldIgnoreMime(by_contents)
 	}
-	return "", true, nil
+	return "", false
 }
