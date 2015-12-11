@@ -33,6 +33,14 @@ func init() {
 		return
 	}
 
+	var moreregex []string
+	bytes = []byte(files["data/documentation.yaml"])
+	if err := yaml.Unmarshal(bytes, &moreregex); err != nil {
+		log.Fatal(err)
+		return
+	}
+	regexps = append(regexps, moreregex...)
+
 	vendorRE = regexp.MustCompile(strings.Join(regexps, "|"))
 }
 
