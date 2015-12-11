@@ -38,6 +38,22 @@ type language_color struct {
 	Color    string
 }
 
+var langs map[string]int = make(map[string]int)
+var total_size int = 0
+var res map[string]int = make(map[string]int)
+var num_files int = 0
+var max_len int = 0
+
+func putResult(language string, size int) {
+	res[language]++
+	langs[language] += size
+	total_size += size
+	num_files++
+	if len(language) > max_len {
+		max_len = len(language)
+	}
+}
+
 func main() {
 	flag.BoolVar(&output_debug, "debug", false, "Print debug information.")
 	flag.BoolVar(&input_mode_git, "git", false, "Scan for files using git ls-tree and cat-file, rather than filesystem.")

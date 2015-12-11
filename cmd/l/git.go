@@ -50,40 +50,39 @@ func processTree(tree_id string) {
 			checkErr(err)
 
 			if size == 0 {
-				log.Println("omitting empty file", fname)
-				continue
-			}
-			if linguist.IsVendored(fname) {
-				log.Println("omitting vendored file", fname)
+				log.Println(fname, "is empty file, skipping")
 				continue
 			}
 
-			by_name, shouldIgnore := getLangFromFilename(fname)
-			if shouldIgnore {
-				log.Println("DetectMimeFromFilename says to ignore type: ", by_name)
-				log.Println("Ignoring", fname)
+			if linguist.IsVendored(fname) {
+				log.Println(fname, "is vendored, skipping")
 				continue
-			} else if by_name != "" {
-				log.Println("got result by name: ", by_name)
+			}
+
+			by_name := linguist.DetectFromFilename(fname)
+			if by_name != "" {
+				log.Println(fname, "got result by name: ", by_name)
 				putResult(by_name, size)
 				continue
 			}
 
-			cat_data := gitcmd("cat-file blob " + fhash)
-			by_data, shouldIgnore := getLangFromContents(cat_data)
-			if shouldIgnore {
-				log.Println("DetectMimeFromContents says to ignore type: ", by_data)
-				log.Println("Ignoring", fname)
+			contents := gitcmd("cat-file blob " + fhash)
+
+			if linguist.IsBinary(contents) {
+				log.Println(fname, "is (likely) binary file, skipping")
 				continue
-			} else if by_data != "" {
-				log.Println("got result by data: ", by_data)
+			}
+
+			by_data := linguist.DetectFromContents(contents)
+			if by_data != "" {
+				log.Println(fname, "got result by data: ", by_data)
 				putResult(by_data, size)
 				continue
 			}
-			log.Println("got no result for: ", fname)
+			log.Println(fname, "got no result!!")
 			putResult("(unknown)", size)
 		case "commit":
-			log.Println("omitting commit", fname)
+			log.Println(fname, "is a git submodule (ftype == \"commit\"), skipping")
 			continue
 		default:
 			println("currently unsupported ftype:" + ftype)

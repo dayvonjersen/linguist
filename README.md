@@ -28,13 +28,7 @@ See cmd/l for a reference implementation command-line tool.
 
  - find a way to embed the classifier into this package rather than rely on filesystem or hosted 3rd parties
 
-2. I added mimetype detection to this so that you can prevent feeding the classifier giant gobs of binary data with no hope of getting a valid answer. However:
-
- - mimetypes have no associated "language", even though mimetypes like text/x-perl exist... (need to make an associative list)
-
- - mimemagic support works on my machine<sup>tm</sup> currently (need to ensure cross-platform)
-
-3. It's possible for known file extensions to have multiple associated languages, see the source for DetectFromFilename in linguist.go
+2. It's possible for known file extensions to have multiple associated languages, see the source for DetectFromFilename in linguist.go
 
  - Should be able to pass "hints" to DetectFromContents and sort through the `scores` value returned by bayesian.Classifier.GetLogScores
 
@@ -74,34 +68,6 @@ func DetectFromFilename(filename string) string
 DetectFromFilename detects the language solely from the filename, returning the
 empty string on ambiguous or unknown filenames.
 
-#### func  DetectMimeFromContents
-
-```go
-func DetectMimeFromContents(contents []byte) (mimetype string, shouldIgnore bool)
-```
-DetectMimeFromContents detects the mimetype based on the contents given
-
-Returns the mimetype string, or the empty string on failure
-
-shouldIgnore will be true iff the mimetype matches known binary formats
-
-This function uses the github.com/rakyll/magicmime library and may not be
-compatible with your system
-
-#### func  DetectMimeFromFilename
-
-```go
-func DetectMimeFromFilename(filename string) (mimetype string, shouldIgnore bool)
-```
-DetectMimeFromFilename detects the mimetype of the file given by filename
-
-Returns the mimetype string, or the empty string on failure
-
-shouldIgnore will be true iff the mimetype matches known binary formats
-
-This function uses the golang.org/pkg/mime library and should be relatively safe
-to use, but not very robust
-
 #### func  GetColor
 
 ```go
@@ -112,6 +78,29 @@ HTML Hex notation (e.g. "#123ABC") from the languages.yaml provided by
 github.com/github/linguist
 
 returns empty string if there is no associated color for the language
+
+#### func  IsBinary
+
+```go
+func IsBinary(contents []byte) (probably bool)
+```
+IsBinary checks contents for known character escape codes which frequently show
+up in binary files but rarely (if ever) in text.
+
+Use this check before using DetectFromContents to reduce likelihood of passing
+binary data into it.
+
+NOTE(tso): preliminary testing on this method of checking for binary contents
+were promising, having fed a document consisting of all utf-8 codepoints from
+0000 to FFFF with satisfactory results. Thanks to robpike.io/cmd/unicode: ```
+unicode -c $(seq 0 65535 | xargs printf "%04x ") | tr -d '\n' > unicode_test ```
+
+However, the intentional presence of character escape codes to throw this
+function off is entirely possible, as is, potentially, a binary file consisting
+entirely of the 4 exceptions to the rule for the first 512 bytes. It is also
+possible that more character escape codes need to be added.
+
+Further analysis and real world testing of this is required.
 
 #### func  IsVendored
 

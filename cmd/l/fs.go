@@ -54,51 +54,52 @@ func processDir(dirname string) {
 	checkErr(err)
 	checkErr(os.Chdir(dirname))
 	for _, file := range files {
-		log.Println("with file: ", file.Name())
-		//abs, err := filepath.Abs(file.Name())
-		//checkErr(err)
+		name := file.Name()
 		size := int(file.Size())
+		log.Println("with file: ", name)
 		if size == 0 {
-			log.Println("size is 0 for", file.Name())
+			log.Println(name, "is empty file, skipping")
 			continue
 		}
-		if isIgnored(dirname + string(os.PathSeparator) + file.Name()) {
-			log.Println(file.Name(), "is ignored")
+		if isIgnored(dirname + string(os.PathSeparator) + name) {
+			log.Println(name, "is ignored, skipping")
 			continue
 		}
 		if file.IsDir() {
-			if file.Name() == ".git" {
-				log.Println("skipping .git directory")
+			if name == ".git" {
+				log.Println(".git directory, skipping")
 				continue
 			}
-			processDir(file.Name())
-		} else if !linguist.IsVendored(file.Name()) {
-			by_name, shouldIgnore := getLangFromFilename(file.Name())
-			if shouldIgnore {
-				log.Println("DetectMimeFromFilename says to ignore type: ", by_name)
-				log.Println("Ignoring", file.Name())
+			processDir(name)
+		} else {
+			if linguist.IsVendored(name) {
+				log.Println(name, "is vendored, skipping")
 				continue
-			} else if by_name != "" {
-				log.Println("got result by name: ", by_name)
+			}
+
+			by_name := linguist.DetectFromFilename(name)
+			if by_name != "" {
+				log.Println(name, "got result by name: ", by_name)
 				putResult(by_name, size)
 				continue
 			}
 
-			by_data, shouldIgnore := getLangFromContents(fileGetContents(file.Name()))
-			if shouldIgnore {
-				log.Println("DetectMimeFromContents says to ignore type: ", by_data)
-				log.Println("Ignoring", file.Name())
+			contents := fileGetContents(name)
+
+			if linguist.IsBinary(contents) {
+				log.Println(name, "is (likely) binary file, skipping")
 				continue
-			} else if by_data != "" {
-				log.Println("got result by data: ", by_data)
+			}
+
+			by_data := linguist.DetectFromContents(contents)
+			if by_data != "" {
+				log.Println(name, "got result by data: ", by_data)
 				putResult(by_data, size)
 				continue
 			}
 
-			log.Println("got no result for: ", file.Name())
+			log.Println(name, "got no result!!")
 			putResult("(unknown)", size)
-		} else {
-			log.Println(file.Name(), "is vendored")
 		}
 	}
 	checkErr(os.Chdir(".."))
