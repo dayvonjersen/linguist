@@ -1,5 +1,3 @@
-*you still shouldn't use this yet*
-
 # l
 
 A command-line utility to report programming language usage in a project.

@@ -48,6 +48,10 @@ func init() {
 // be excluded from statistics.
 //
 // See also the data/vendor.yaml file distributed with this package.
+//
+// This function also returns true if path is considered documentation.
+//
+// See also the data/documentation.yaml file distributed with this package.
 func IsVendored(path string) bool {
 	return vendorRE.MatchString(path)
 }

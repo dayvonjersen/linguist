@@ -2,7 +2,7 @@
 
 Port of [github linguist](https://github.com/github/linguist) to Go. Not complete *but we're getting there...*
 
-Many thanks to @petermattis for this comment:
+Many thanks to [@petermattis](https://github.com/petermattis) for this comment:
 
 ```
 	// TODO(pmattis): Linguist falls back to using a bayesian classifier
@@ -111,3 +111,7 @@ IsVendored returns true if path is considered "vendored" and should be excluded
 from statistics.
 
 See also the data/vendor.yaml file distributed with this package.
+
+This function also returns true if path is considered documentation.
+
+See also the data/documentation.yaml file distributed with this package.

@@ -11,7 +11,7 @@ A reference implementation.
 
 These programs generate the data used by linguist.
 
-Use `./generate` rather than running them directly.
+Use `./generate-classifier` and `./generate-static` rather than running them directly.
 
 ## tokenizer_test/
 
