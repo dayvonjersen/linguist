@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os/exec"
 	"strconv"
@@ -10,7 +11,36 @@ import (
 	"github.com/generaltso/linguist"
 )
 
+func catfile(hash string) []byte {
+	log.Println("git cat-file blob", hash)
+	git := exec.Command("sh", "-c", "git cat-file blob "+hash)
+	stdout, err := git.StdoutPipe()
+	checkErr(err)
+	c := make(chan struct{})
+	blob := make([]byte, 512)
+	go func() {
+		git.Run()
+		c <- struct{}{}
+		log.Println("EXITED: git cat-file blob", hash)
+	}()
+	go func() {
+		n, err := stdout.Read(blob)
+		log.Printf("Read %d bytes from %s", n, hash)
+		if err != io.EOF {
+			checkErr(err)
+		} else {
+			log.Println("Reached EOF for", hash)
+		}
+		git.Process.Kill()
+		c <- struct{}{}
+		log.Println("KILLED: git cat-file blob", hash)
+	}()
+	<-c
+	return blob
+}
+
 func gitcmd(args string) []byte {
+	log.Println("git", args)
 	git := exec.Command("sh", "-c", "git "+args)
 	out, err := git.CombinedOutput()
 	if err != nil {
@@ -49,6 +79,7 @@ func processTree(tree_id string) {
 			size, err := strconv.Atoi(strings.TrimSpace(cat_size))
 			checkErr(err)
 
+			log.Println(fname, "is", size, "bytes")
 			if size == 0 {
 				log.Println(fname, "is empty file, skipping")
 				continue
@@ -66,7 +97,7 @@ func processTree(tree_id string) {
 				continue
 			}
 
-			contents := gitcmd("cat-file blob " + fhash)
+			contents := catfile(fhash)
 
 			if linguist.IsBinary(contents) {
 				log.Println(fname, "is (likely) binary file, skipping")

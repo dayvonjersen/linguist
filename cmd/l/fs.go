@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 
@@ -31,14 +31,23 @@ func initGitIgnore() {
 // shoutouts to php
 func fileGetContents(filename string) []byte {
 	log.Println("reading contents of", filename)
-	contents, err := ioutil.ReadFile(filename)
+
+	// read only first 512 bytes of files
+	contents := make([]byte, 512)
+	f, err := os.Open(filename)
 	checkErr(err)
+	_, err = f.Read(contents)
+	f.Close()
+	if err != io.EOF {
+		checkErr(err)
+	}
 	return contents
 }
+
 func fileExists(filename string) bool {
 	log.Println("opening file", filename)
-	g, err := os.Open(filename)
-	g.Close()
+	f, err := os.Open(filename)
+	f.Close()
 	if os.IsNotExist(err) {
 		log.Println(filename, "does not exist")
 		return false
@@ -57,6 +66,7 @@ func processDir(dirname string) {
 		name := file.Name()
 		size := int(file.Size())
 		log.Println("with file: ", name)
+		log.Println(name, "is", size, "bytes")
 		if size == 0 {
 			log.Println(name, "is empty file, skipping")
 			continue
