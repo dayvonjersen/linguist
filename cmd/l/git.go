@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -54,7 +55,7 @@ func gitcmdString(args string) string {
 	return string(gitcmd(args))
 }
 
-func processTree(tree_id string) {
+func processTree(tree_id string, parent []string) {
 	ls_tree := gitcmdString("ls-tree " + tree_id)
 	for _, ln := range strings.Split(ls_tree, "\n") {
 		fields := strings.Split(ln, " ")
@@ -73,8 +74,9 @@ func processTree(tree_id string) {
 		switch ftype {
 		case "tree":
 			log.Println("entering subtree", fname)
-			processTree(fhash)
+			processTree(fhash, append(parent, fname))
 		case "blob":
+			fname = filepath.Join(append(parent, fname)...)
 			cat_size := gitcmdString("cat-file -s " + fhash)
 			size, err := strconv.Atoi(strings.TrimSpace(cat_size))
 			checkErr(err)

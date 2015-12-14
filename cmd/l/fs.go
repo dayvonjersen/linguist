@@ -2,11 +2,13 @@ package main
 
 import (
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/generaltso/linguist"
-	"github.com/lintianzhi/ignore"
 )
 
 var isIgnored func(string) bool
@@ -14,11 +16,46 @@ var isIgnored func(string) bool
 func initGitIgnore() {
 	if fileExists(".git") && fileExists(".gitignore") {
 		log.Println("found .git directory and .gitignore")
-		gitIgn, err := ignore.NewGitIgn(".gitignore")
+
+		f, err := os.Open(".gitignore")
 		checkErr(err)
-		gitIgn.Start(".")
+
+		pathlist, err := ioutil.ReadAll(f)
+		checkErr(err)
+
+		ignore := []string{}
+		except := []string{}
+		for _, path := range strings.Split(string(pathlist), "\n") {
+			path = strings.TrimSpace(path)
+			if len(path) == 0 || string(path[0]) == "#" {
+				continue
+			}
+			isExcept := false
+			if string(path[0]) == "!" {
+				isExcept = true
+				path = path[1:]
+			}
+			fields := strings.Split(path, " ")
+			p := fields[len(fields)-1:][0]
+			p = strings.Trim(p, string(filepath.Separator))
+			if isExcept {
+				except = append(except, p)
+			} else {
+				ignore = append(ignore, p)
+			}
+		}
 		isIgnored = func(filename string) bool {
-			return gitIgn.TestIgnore(filename)
+			for _, p := range ignore {
+				if m, _ := filepath.Match(p, filename); m {
+					for _, e := range except {
+						if m, _ := filepath.Match(e, filename); m {
+							return false
+						}
+					}
+					return true
+				}
+			}
+			return false
 		}
 	} else {
 		log.Println("no .gitignore found")
@@ -57,60 +94,56 @@ func fileExists(filename string) bool {
 }
 
 func processDir(dirname string) {
-	cwd, err := os.Open(dirname)
-	checkErr(err)
-	files, err := cwd.Readdir(0)
-	checkErr(err)
-	checkErr(os.Chdir(dirname))
-	for _, file := range files {
-		name := file.Name()
+	filepath.Walk(dirname, func(path string, file os.FileInfo, err error) error {
 		size := int(file.Size())
-		log.Println("with file: ", name)
-		log.Println(name, "is", size, "bytes")
+		log.Println("with file: ", path)
+		log.Println(path, "is", size, "bytes")
 		if size == 0 {
-			log.Println(name, "is empty file, skipping")
-			continue
+			log.Println(path, "is empty file, skipping")
+			return nil
 		}
-		if isIgnored(dirname + string(os.PathSeparator) + name) {
-			log.Println(name, "is ignored, skipping")
-			continue
+		if isIgnored(path) {
+			log.Println(path, "is ignored, skipping")
+			if file.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
 		}
 		if file.IsDir() {
-			if name == ".git" {
+			if file.Name() == ".git" {
 				log.Println(".git directory, skipping")
-				continue
+				return filepath.SkipDir
 			}
-			processDir(name)
 		} else {
-			if linguist.IsVendored(name) {
-				log.Println(name, "is vendored, skipping")
-				continue
+			if linguist.IsVendored(path) {
+				log.Println(path, "is vendored, skipping")
+				return nil
 			}
 
-			by_name := linguist.DetectFromFilename(name)
+			by_name := linguist.DetectFromFilename(path)
 			if by_name != "" {
-				log.Println(name, "got result by name: ", by_name)
+				log.Println(path, "got result by name: ", by_name)
 				putResult(by_name, size)
-				continue
+				return nil
 			}
 
-			contents := fileGetContents(name)
+			contents := fileGetContents(path)
 
 			if linguist.IsBinary(contents) {
-				log.Println(name, "is (likely) binary file, skipping")
-				continue
+				log.Println(path, "is (likely) binary file, skipping")
+				return nil
 			}
 
 			by_data := linguist.DetectFromContents(contents)
 			if by_data != "" {
-				log.Println(name, "got result by data: ", by_data)
+				log.Println(path, "got result by data: ", by_data)
 				putResult(by_data, size)
-				continue
+				return nil
 			}
 
-			log.Println(name, "got no result!!")
+			log.Println(path, "got no result!!")
 			putResult("(unknown)", size)
 		}
-	}
-	checkErr(os.Chdir(".."))
+		return nil
+	})
 }

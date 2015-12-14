@@ -111,7 +111,7 @@ func main() {
 	}
 
 	if input_mode_git {
-		processTree(input_git_tree)
+		processTree(input_git_tree, []string{})
 	}
 
 	results := []float64{}
@@ -120,6 +120,7 @@ func main() {
 		res := (float64(num) / float64(total_size)) * 100.0
 		results = append(results, res)
 		qqq[res] = lang
+
 	}
 
 	sort.Sort(sort.Reverse(sort.Float64Slice(results)))
