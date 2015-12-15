@@ -2,6 +2,7 @@ package linguist
 
 import (
 	"log"
+	"math"
 	"os"
 
 	"github.com/generaltso/linguist/tokenizer"
@@ -54,4 +55,28 @@ func Analyse(contents []byte) (language string) {
 	classifier := getClassifier()
 	_, id, _ := classifier.LogScores(document)
 	return string(classifier.Classes[id])
+}
+
+func AnalyseWithHints(contents []byte, hints []string) (language string) {
+	document := tokenizer.Tokenize(contents)
+	classifier := getClassifier()
+	scores, _, _ := classifier.LogScores(document)
+
+	langs := map[string]struct{}{}
+	for _, hint := range hints {
+		langs[hint] = struct{}{}
+	}
+	best_score := math.Inf(-1)
+	best_answer := ""
+
+	for id, score := range scores {
+		answer := string(classifier.Classes[id])
+		if _, ok := langs[answer]; ok {
+			if score >= best_score {
+				best_score = score
+				best_answer = answer
+			}
+		}
+	}
+	return best_answer
 }

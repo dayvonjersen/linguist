@@ -106,7 +106,14 @@ func processTree(tree_id string, parent []string) {
 				continue
 			}
 
-			by_data := linguist.DetectFromContents(contents)
+			hints := linguist.GetHintsFromFilename(fname)
+			log.Printf("%s got hints: %#v\n", fname, hints)
+			by_data := ""
+			if len(hints) > 0 {
+				by_data = linguist.AnalyseWithHints(contents, hints)
+			} else {
+				by_data = linguist.DetectFromContents(contents)
+			}
 			if by_data != "" {
 				log.Println(fname, "got result by data: ", by_data)
 				putResult(by_data, size)

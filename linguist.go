@@ -78,6 +78,18 @@ func DetectFromFilename(filename string) string {
 	return ""
 }
 
+func GetHintsFromFilename(filename string) (hints []string) {
+	if l, ok := filenames[filename]; ok {
+		hints = append(hints, l...)
+	}
+	if ext := filepath.Ext(filename); ext != "" {
+		if l, ok := extensions[ext]; ok {
+			hints = append(hints, l...)
+		}
+	}
+	return hints
+}
+
 // DetectFromContents detects the language from the file contents,
 // returning the empty string if the language could not be determined.
 func DetectFromContents(contents []byte) string {

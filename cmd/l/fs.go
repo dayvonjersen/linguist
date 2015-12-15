@@ -134,7 +134,14 @@ func processDir(dirname string) {
 				return nil
 			}
 
-			by_data := linguist.DetectFromContents(contents)
+			hints := linguist.GetHintsFromFilename(path)
+			log.Printf("%s got hints: %#v\n", path, hints)
+			by_data := ""
+			if len(hints) > 0 {
+				by_data = linguist.AnalyseWithHints(contents, hints)
+			} else {
+				by_data = linguist.DetectFromContents(contents)
+			}
 			if by_data != "" {
 				log.Println(path, "got result by data: ", by_data)
 				putResult(by_data, size)
