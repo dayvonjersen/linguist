@@ -28,7 +28,7 @@ var files = map[string]string{
 #                     in the statistics as the parent language.
 #
 # Any additions or modifications (even trivial) should have corresponding
-# test change in ` + "`" + `test/test_blob.rb` + "`" + `.
+# test change in `+"`"+`test/test_blob.rb`+"`"+`.
 #
 # Please keep this list alphabetized. Capitalization comes before lower case.
 
@@ -147,7 +147,7 @@ Agda:
 
 Alloy:
   type: programming  # 'modeling' would be more appropiate
-  color: "#cc5c24"
+  color: "#64C800"
   extensions:
   - .als
   ace_mode: text
@@ -544,6 +544,14 @@ Clean:
   - .icl
   - .dcl
   tm_scope: none
+  ace_mode: text
+
+Click:
+  type: programming
+  color: "#E4E6F3"
+  extensions:
+  - .click
+  tm_scope: source.click
   ace_mode: text
 
 Clojure:
@@ -1701,6 +1709,18 @@ Julia:
   color: "#a270ba"
   ace_mode: julia
 
+Jupyter Notebook:
+  type: markup
+  ace_mode: json
+  tm_scope: source.json
+  color: "#DA5B0B"
+  extensions:
+  - .ipynb
+  filenames:
+  - Notebook
+  aliases:
+  - IPython Notebook
+
 KRL:
   type: programming
   color: "#28431f"
@@ -1962,6 +1982,15 @@ M:
   - .m
   tm_scope: source.lisp
   ace_mode: lisp
+
+MAXScript:
+  type: programming
+  color: "#00a6a6"
+  extensions:
+  - .ms
+  - .mcr
+  tm_scope: source.maxscript
+  ace_mode: text
 
 MTML:
   type: markup
@@ -2958,6 +2987,17 @@ Redcode:
   - .cw
   tm_scope: none
   ace_mode: text
+
+Ren'Py:
+  type: programming
+  group: Python
+  aliases:
+  - renpy
+  color: "#ff7f7f"
+  extensions:
+  - .rpy
+  tm_scope: source.renpy
+  ace_mode: python
 
 RenderScript:
   type: programming
@@ -3962,7 +4002,7 @@ xBase:
 # pathname.
 #
 # Please add additional test coverage to
-# ` + "`" + `test/test_blob.rb#test_vendored` + "`" + ` if you make any changes.
+# `+"`"+`test/test_blob.rb#test_vendored`+"`"+` if you make any changes.
 
 ## Vendor Conventions ##
 
@@ -4268,7 +4308,7 @@ xBase:
 # pathname.
 #
 # Please add additional test coverage to
-# ` + "`" + `test/test_blob.rb#test_documentation` + "`" + ` if you make any changes.
+# `+"`"+`test/test_blob.rb#test_documentation`+"`"+` if you make any changes.
 
 ## Documentation directories ##
 
@@ -4292,4 +4332,5 @@ xBase:
 # Samples folders
 - ^[Ss]amples/
 `,
+
 }
