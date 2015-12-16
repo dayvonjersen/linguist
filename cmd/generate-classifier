@@ -1,3 +1,5 @@
 #!/bin/bash
 cd ..
 go run cmd/generate_classifier/main.go
+go-bindata -pkg data -prefix data/ -o data/data.go data/classifier 
+# [data intensifies]

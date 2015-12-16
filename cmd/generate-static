@@ -1,3 +1,4 @@
 #!/bin/bash
 cd ..
 go run cmd/generate_static/main.go data/languages.yaml data/vendor.yaml data/documentation.yaml
+gofmt -w static.go

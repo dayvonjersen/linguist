@@ -26,12 +26,6 @@ See cmd/l for a reference implementation command-line tool.
 
  - more/better programming language sample data
 
- - find a way to embed the classifier into this package rather than rely on filesystem or hosted 3rd parties
-
-2. It's possible for known file extensions to have multiple associated languages, see the source for DetectFromFilename in linguist.go
-
- - Should be able to pass "hints" to DetectFromContents and sort through the `scores` value returned by bayesian.Classifier.GetLogScores
-
 ###### [godocdown](https://github.com/robertkrimen/godocdown) >> README.md
 # linguist
 --
@@ -51,6 +45,12 @@ Returns the name of a programming language, or the empty string if one could not
 be determined.
 
 NOTE(tso): May yield inaccurate results
+
+#### func  AnalyseWithHints
+
+```go
+func AnalyseWithHints(contents []byte, hints []string) (language string)
+```
 
 #### func  DetectFromContents
 
@@ -78,6 +78,12 @@ HTML Hex notation (e.g. "#123ABC") from the languages.yaml provided by
 github.com/github/linguist
 
 returns empty string if there is no associated color for the language
+
+#### func  GetHintsFromFilename
+
+```go
+func GetHintsFromFilename(filename string) (hints []string)
+```
 
 #### func  IsBinary
 

@@ -1,10 +1,11 @@
 package linguist
 
 import (
+	"bytes"
 	"log"
 	"math"
-	"os"
 
+	"github.com/generaltso/linguist/data"
 	"github.com/generaltso/linguist/tokenizer"
 	"github.com/jbrukh/bayesian"
 )
@@ -15,27 +16,14 @@ var classifier_initialized bool = false
 // Gets the baysian.Classifier which has been trained on programming language
 // samples from github.com/github/linguist after running the generator found
 // in cmd/generate_classifier/main.go
-//
-// NOTE(tso): github.com/jbrukh/bayesian provides the mechanism for
-// serialization/deserialization of Classifier objects. After many failed
-// attempts to serialize this data *directly* into this package, both as a
-// base64 encoded string and exporting the structure from bayesian.Classifier
-// with an old-fashioned %#v (really bad idea), I have resorted to using the
-// serialization to file option, which is not very portable.
-//
-// Currently it looks for the data dump distributed with this package
-// using the GOPATH or GOROOT env vars at runtime.
 func getClassifier() *bayesian.Classifier {
 	if !classifier_initialized {
-		gopath := os.Getenv("GOPATH")
-		if gopath == "" {
-			gopath = os.Getenv("GOROOT")
-			if gopath == "" {
-				log.Fatalln("Could not determine GOPATH or GOROOT at runtime\n(Necessary to read data dump for linguist)")
-			}
+		data, err := data.Asset("classifier")
+		if err != nil {
+			log.Panicln(err)
 		}
-		var err error
-		classifier, err = bayesian.NewClassifierFromFile(gopath + "/src/github.com/generaltso/linguist/data/classifier")
+		reader := bytes.NewReader(data)
+		classifier, err = bayesian.NewClassifierFromReader(reader)
 		if err != nil {
 			log.Panicln(err)
 		}
