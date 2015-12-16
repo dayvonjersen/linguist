@@ -133,7 +133,7 @@ func main() {
 			}
 			var l interface{}
 			if output_json_with_colors {
-				l = language_color{qqq[percent], percent, linguist.GetColor(qqq[percent])}
+				l = language_color{qqq[percent], percent, linguist.LanguageColor(qqq[percent])}
 			} else {
 				l = language{qqq[percent], percent}
 			}

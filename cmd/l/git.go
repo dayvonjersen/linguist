@@ -87,12 +87,12 @@ func processTree(tree_id string, parent []string) {
 				continue
 			}
 
-			if linguist.IsVendored(fname) {
-				log.Println(fname, "is vendored, skipping")
+			if linguist.ShouldIgnoreFilename(fname) {
+				log.Println(fname, ": filename should be ignored, skipping")
 				continue
 			}
 
-			by_name := linguist.DetectFromFilename(fname)
+			by_name := linguist.LanguageByFilename(fname)
 			if by_name != "" {
 				log.Println(fname, "got result by name: ", by_name)
 				putResult(by_name, size)
@@ -101,19 +101,15 @@ func processTree(tree_id string, parent []string) {
 
 			contents := catfile(fhash)
 
-			if linguist.IsBinary(contents) {
-				log.Println(fname, "is (likely) binary file, skipping")
+			if linguist.ShouldIgnoreContents(contents) {
+				log.Println(fname, ": contents should be ignored, skipping")
 				continue
 			}
 
-			hints := linguist.GetHintsFromFilename(fname)
-			log.Printf("%s got hints: %#v\n", fname, hints)
-			by_data := ""
-			if len(hints) > 0 {
-				by_data = linguist.AnalyseWithHints(contents, hints)
-			} else {
-				by_data = linguist.DetectFromContents(contents)
-			}
+			hints := linguist.LanguageHints(fname)
+			log.Printf("%s got language hints: %#v\n", fname, hints)
+			by_data := linguist.LanguageByContents(contents, hints)
+
 			if by_data != "" {
 				log.Println(fname, "got result by data: ", by_data)
 				putResult(by_data, size)

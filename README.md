@@ -1,8 +1,8 @@
 # linguist
 
-Port of [github linguist](https://github.com/github/linguist) to Go. Not complete *but we're getting there...*
+<s>Port</s> *reimagining* of [github linguist](https://github.com/github/linguist) in Go. 
 
-Many thanks to [@petermattis](https://github.com/petermattis) for this comment:
+Many thanks to [@petermattis](https://github.com/petermattis) for his initial work in creating this project, and especially thanks this comment:
 
 ```
 	// TODO(pmattis): Linguist falls back to using a bayesian classifier
@@ -16,9 +16,9 @@ Which allowed me to find this library:
 
 [github.com/jbrukh/bayesian](https://github.com/jbrukh/bayesian)
 
-You can blame that and/or the amateurish tokenizer I wrote for any inaccurate results.
+You can blame that, or more likely the amateurish `tokenizer` I made, for any inaccurate results.
 
-See cmd/l for a reference implementation command-line tool.
+See `cmd/l` for a reference implementation in the form of a command-line tool.
 
 ## Known Issues
 
@@ -33,57 +33,6 @@ See cmd/l for a reference implementation command-line tool.
 
 
 ## Usage
-
-#### func  Analyse
-
-```go
-func Analyse(contents []byte) (language string)
-```
-Attempts to use Naive Bayesian Classification on the file contents provided
-
-Returns the name of a programming language, or the empty string if one could not
-be determined.
-
-NOTE(tso): May yield inaccurate results
-
-#### func  AnalyseWithHints
-
-```go
-func AnalyseWithHints(contents []byte, hints []string) (language string)
-```
-
-#### func  DetectFromContents
-
-```go
-func DetectFromContents(contents []byte) string
-```
-DetectFromContents detects the language from the file contents, returning the
-empty string if the language could not be determined.
-
-#### func  DetectFromFilename
-
-```go
-func DetectFromFilename(filename string) string
-```
-DetectFromFilename detects the language solely from the filename, returning the
-empty string on ambiguous or unknown filenames.
-
-#### func  GetColor
-
-```go
-func GetColor(language string) string
-```
-Convenience function that returns the color associated with the language, in
-HTML Hex notation (e.g. "#123ABC") from the languages.yaml provided by
-github.com/github/linguist
-
-returns empty string if there is no associated color for the language
-
-#### func  GetHintsFromFilename
-
-```go
-func GetHintsFromFilename(filename string) (hints []string)
-```
 
 #### func  IsBinary
 
@@ -108,6 +57,15 @@ possible that more character escape codes need to be added.
 
 Further analysis and real world testing of this is required.
 
+#### func  IsDocumentation
+
+```go
+func IsDocumentation(path string) bool
+```
+IsDocumentation returns true if path is considered documentation.
+
+See also the data/documentation.yaml file distributed with this package.
+
 #### func  IsVendored
 
 ```go
@@ -118,6 +76,61 @@ from statistics.
 
 See also the data/vendor.yaml file distributed with this package.
 
-This function also returns true if path is considered documentation.
+#### func  LanguageByContents
 
-See also the data/documentation.yaml file distributed with this package.
+```go
+func LanguageByContents(contents []byte, hints []string) string
+```
+LanguageByContents attempts to detect the language based on its contents and a
+slice of hints to the possible answer (obtained with LanguageHints), returning
+the empty string a language could not be determined.
+
+#### func  LanguageByFilename
+
+```go
+func LanguageByFilename(filename string) string
+```
+LanguageByFilename attempts to detect the language of a file, based only on its
+name, returning the empty string in ambiguous or unrecognized cases.
+
+#### func  LanguageColor
+
+```go
+func LanguageColor(language string) string
+```
+Convenience function that returns the color associated with the language, in
+HTML Hex notation (e.g. "#123ABC") from the languages.yaml provided by
+github.com/github/linguist
+
+returns empty string if there is no associated color for the language
+
+#### func  LanguageHints
+
+```go
+func LanguageHints(filename string) (hints []string)
+```
+Similarly to LanguageByFilename, LanguageHints attempts to detect the language
+of a file based solely on its name, returning all known possiblities as a slice
+of strings.
+
+Intended to be used with LanguageByContents.
+
+#### func  ShouldIgnoreContents
+
+```go
+func ShouldIgnoreContents(contents []byte) bool
+```
+ShouldIgnoreContents returns true if contents match known files which typically
+should not be passed to LangugeByContents.
+
+Right now, this simply calls IsBinary.
+
+#### func  ShouldIgnoreFilename
+
+```go
+func ShouldIgnoreFilename(filename string) bool
+```
+ShouldIgnoreFilename returns true if filename matches known files which
+typically should not be passed to LanguageByFilename.
+
+Right now, this simply calls IsVendored and IsDocumentation.

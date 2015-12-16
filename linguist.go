@@ -63,9 +63,22 @@ func init() {
 	}
 }
 
-// DetectFromFilename detects the language solely from the filename,
-// returning the empty string on ambiguous or unknown filenames.
-func DetectFromFilename(filename string) string {
+// Convenience function that returns the color associated
+// with the language, in HTML Hex notation (e.g. "#123ABC")
+// from the languages.yaml provided by github.com/github/linguist
+//
+// returns empty string if there is no associated color for the language
+func LanguageColor(language string) string {
+	if c, ok := colors[language]; ok {
+		return c
+	}
+	return ""
+}
+
+// LanguageByFilename attempts to detect the language of a file,
+// based only on its name, returning the empty string in ambiguous
+// or unrecognized cases.
+func LanguageByFilename(filename string) string {
 	if l := filenames[filename]; len(l) == 1 {
 		return l[0]
 	}
@@ -78,7 +91,12 @@ func DetectFromFilename(filename string) string {
 	return ""
 }
 
-func GetHintsFromFilename(filename string) (hints []string) {
+// Similarly to LanguageByFilename, LanguageHints attempts to detect
+// the language of a file based solely on its name, returning all known
+// possiblities as a slice of strings.
+//
+// Intended to be used with LanguageByContents.
+func LanguageHints(filename string) (hints []string) {
 	if l, ok := filenames[filename]; ok {
 		hints = append(hints, l...)
 	}
@@ -90,16 +108,18 @@ func GetHintsFromFilename(filename string) (hints []string) {
 	return hints
 }
 
-// DetectFromContents detects the language from the file contents,
-// returning the empty string if the language could not be determined.
-func DetectFromContents(contents []byte) string {
+// LanguageByContents attempts to detect the language based on its
+// contents and a slice of hints to the possible answer (obtained with
+// LanguageHints), returning the empty string a language could not be
+// determined.
+func LanguageByContents(contents []byte, hints []string) string {
 	interpreter := detectInterpreter(contents)
 	if interpreter != "" {
 		if l := interpreters[interpreter]; len(l) == 1 {
 			return l[0]
 		}
 	}
-	return Analyse(contents)
+	return analyse(contents, hints)
 }
 
 func detectInterpreter(contents []byte) string {

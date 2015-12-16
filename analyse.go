@@ -14,9 +14,13 @@ var classifier *bayesian.Classifier
 var classifier_initialized bool = false
 
 // Gets the baysian.Classifier which has been trained on programming language
-// samples from github.com/github/linguist after running the generator found
-// in cmd/generate_classifier/main.go
+// samples from github.com/github/linguist after running the generator
+//
+// See also cmd/generate-classifier
 func getClassifier() *bayesian.Classifier {
+	// NOTE(tso): this could probably go into an init() function instead
+	// but this lazy loading approach works, and it's conceivable that the
+	// analyse() function might not invoked in an actual runtime anyway
 	if !classifier_initialized {
 		data, err := data.Asset("classifier")
 		if err != nil {
@@ -32,28 +36,26 @@ func getClassifier() *bayesian.Classifier {
 	return classifier
 }
 
-// Attempts to use Naive Bayesian Classification on the file contents provided
+// Uses Naive Bayesian Classification on the file contents provided
 //
 // Returns the name of a programming language, or the empty string if one could
 // not be determined.
 //
 // NOTE(tso): May yield inaccurate results
-func Analyse(contents []byte) (language string) {
+func analyse(contents []byte, hints []string) (language string) {
 	document := tokenizer.Tokenize(contents)
 	classifier := getClassifier()
-	_, id, _ := classifier.LogScores(document)
-	return string(classifier.Classes[id])
-}
+	scores, idx, _ := classifier.LogScores(document)
 
-func AnalyseWithHints(contents []byte, hints []string) (language string) {
-	document := tokenizer.Tokenize(contents)
-	classifier := getClassifier()
-	scores, _, _ := classifier.LogScores(document)
+	if len(hints) == 0 {
+		return string(classifier.Classes[idx])
+	}
 
 	langs := map[string]struct{}{}
 	for _, hint := range hints {
 		langs[hint] = struct{}{}
 	}
+
 	best_score := math.Inf(-1)
 	best_answer := ""
 

@@ -115,12 +115,12 @@ func processDir(dirname string) {
 				return filepath.SkipDir
 			}
 		} else {
-			if linguist.IsVendored(path) {
-				log.Println(path, "is vendored, skipping")
+			if linguist.ShouldIgnoreFilename(path) {
+				log.Println(path, ": filename should be ignored, skipping")
 				return nil
 			}
 
-			by_name := linguist.DetectFromFilename(path)
+			by_name := linguist.LanguageByFilename(path)
 			if by_name != "" {
 				log.Println(path, "got result by name: ", by_name)
 				putResult(by_name, size)
@@ -129,19 +129,15 @@ func processDir(dirname string) {
 
 			contents := fileGetContents(path)
 
-			if linguist.IsBinary(contents) {
-				log.Println(path, "is (likely) binary file, skipping")
+			if linguist.ShouldIgnoreContents(contents) {
+				log.Println(path, ": contents should be ignored, skipping")
 				return nil
 			}
 
-			hints := linguist.GetHintsFromFilename(path)
-			log.Printf("%s got hints: %#v\n", path, hints)
-			by_data := ""
-			if len(hints) > 0 {
-				by_data = linguist.AnalyseWithHints(contents, hints)
-			} else {
-				by_data = linguist.DetectFromContents(contents)
-			}
+			hints := linguist.LanguageHints(path)
+			log.Printf("%s got language hints: %#v\n", path, hints)
+			by_data := linguist.LanguageByContents(contents, hints)
+
 			if by_data != "" {
 				log.Println(path, "got result by data: ", by_data)
 				putResult(by_data, size)
