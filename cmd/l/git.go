@@ -18,13 +18,17 @@ func catfile(hash string) []byte {
 	stdout, err := git.StdoutPipe()
 	checkErr(err)
 	c := make(chan struct{})
+	r := make(chan struct{})
 	blob := make([]byte, 512)
 	go func() {
-		git.Run()
+		git.Start()
+		r <- struct{}{}
+		git.Wait()
 		c <- struct{}{}
 		log.Println("EXITED: git cat-file blob", hash)
 	}()
 	go func() {
+		<-r
 		n, err := stdout.Read(blob)
 		log.Printf("Read %d bytes from %s", n, hash)
 		if err != io.EOF {
