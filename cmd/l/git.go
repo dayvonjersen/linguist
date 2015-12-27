@@ -14,33 +14,17 @@ import (
 
 func catfile(hash string) []byte {
 	log.Println("git cat-file blob", hash)
-	git := exec.Command("sh", "-c", "git cat-file blob "+hash)
+	blob := make([]byte, 512)
+	git := exec.Command("git", "cat-file", "blob", hash)
 	stdout, err := git.StdoutPipe()
 	checkErr(err)
-	c := make(chan struct{})
-	r := make(chan struct{})
-	blob := make([]byte, 512)
-	go func() {
-		git.Start()
-		r <- struct{}{}
-		git.Wait()
-		c <- struct{}{}
-		log.Println("EXITED: git cat-file blob", hash)
-	}()
-	go func() {
-		<-r
-		n, err := stdout.Read(blob)
-		log.Printf("Read %d bytes from %s", n, hash)
-		if err != io.EOF {
-			checkErr(err)
-		} else {
-			log.Println("Reached EOF for", hash)
-		}
-		git.Process.Kill()
-		c <- struct{}{}
-		log.Println("KILLED: git cat-file blob", hash)
-	}()
-	<-c
+	checkErr(git.Start())
+	n, err := stdout.Read(blob)
+	log.Printf("Read %d bytes from %s", n, hash)
+	if err != io.EOF {
+		checkErr(err)
+	}
+	git.Process.Kill()
 	return blob
 }
 
