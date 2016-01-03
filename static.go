@@ -2066,6 +2066,7 @@ Mathematica:
   - .cdf
   - .m
   - .ma
+  - .mt
   - .nb
   - .nbp
   - .wl
@@ -3358,6 +3359,14 @@ Squirrel:
   - .nut
   tm_scope: source.c++
   ace_mode: c_cpp
+
+Stan:
+  type: programming
+  color: "#b2011d"
+  extensions:
+  - .stan
+  ace_mode: text
+  tm_scope: source.stan
 
 Standard ML:
   type: programming
