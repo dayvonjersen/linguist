@@ -1515,7 +1515,7 @@ Inform 7:
   extensions:
   - .ni
   - .i7x
-  tm_scope: source.Inform7
+  tm_scope: source.inform7
   aliases:
   - i7
   - inform7
@@ -2113,6 +2113,7 @@ MediaWiki:
   wrap: true
   extensions:
   - .mediawiki
+  - .wiki
   tm_scope: text.html.mediawiki
   ace_mode: text
 
@@ -3979,6 +3980,8 @@ reStructuredText:
   extensions:
   - .rst
   - .rest
+  - .rest.txt
+  - .rst.txt
   ace_mode: text
 
 wisp:
