@@ -188,6 +188,7 @@ AppleScript:
   interpreters:
   - osascript
   ace_mode: applescript
+  color: "#101F1F"
 
 Arc:
   type: programming
@@ -295,6 +296,7 @@ Batchfile:
   - .cmd
   tm_scope: source.dosbatch
   ace_mode: batchfile
+  color: "#C1F12E"
 
 Befunge:
   type: programming
@@ -309,6 +311,7 @@ Bison:
   extensions:
   - .bison
   ace_mode: text
+  color: "#6A463F"
 
 BitBake:
   type: programming
@@ -643,7 +646,7 @@ Common Lisp:
 
 Component Pascal:
   type: programming
-  color: "#b0ce4e"
+  color: "#B0CE4E"
   extensions:
   - .cp
   - .cps
@@ -706,6 +709,7 @@ Cucumber:
   aliases:
   - gherkin
   ace_mode: text
+  color: "#5B2063"
 
 Cuda:
   type: programming
@@ -714,6 +718,7 @@ Cuda:
   - .cuh
   tm_scope: source.cuda-c++
   ace_mode: c_cpp
+  color: "#3A4E3A"
 
 Cycript:
   type: programming
@@ -806,7 +811,6 @@ Dart:
 
 Diff:
   type: data
-  color: "#88dddd"
   extensions:
   - .diff
   - .patch
@@ -944,6 +948,8 @@ Erlang:
   - .es
   - .escript
   - .hrl
+  - .xrl
+  - .yrl
   filenames:
   - rebar.config
   - rebar.config.lock
@@ -1395,6 +1401,7 @@ Hack:
   - .hh
   - .php
   tm_scope: text.html.php
+  color: "#878787"
 
 Haml:
   group: HTML
@@ -1403,6 +1410,7 @@ Haml:
   - .haml
   - .haml.deface
   ace_mode: haml
+  color: "#ECE2A9"
 
 Handlebars:
   type: markup
@@ -1769,6 +1777,7 @@ LLVM:
   extensions:
   - .ll
   ace_mode: text
+  color: "#185619"
 
 LOLCODE:
   type: programming
@@ -1832,6 +1841,7 @@ Less:
   - .less
   tm_scope: source.css.less
   ace_mode: less
+  color: "#A1D9A1"
 
 Lex:
   type: programming
@@ -2050,6 +2060,7 @@ Markdown:
   - .mkdown
   - .ron
   tm_scope: source.gfm
+  color: "#083FA1"
 
 Mask:
   type: markup
@@ -2289,6 +2300,7 @@ Nginx:
   aliases:
   - nginx configuration file
   ace_mode: text
+  color: "#9469E9"
 
 Nimrod:
   type: programming
@@ -2347,6 +2359,7 @@ NumPy:
   - .numsc
   tm_scope: none
   ace_mode: text
+  color: "#9C8AF9"
 
 OCaml:
   type: programming
@@ -2597,7 +2610,7 @@ Parrot Internal Representation:
 
 Pascal:
   type: programming
-  color: "#b0ce4e"
+  color: "#E3F171"
   extensions:
   - .pas
   - .dfm
@@ -2865,7 +2878,7 @@ QMake:
 
 R:
   type: programming
-  color: "#198ce7"
+  color: "#198CE7"
   aliases:
   - R
   - Rscript
@@ -2895,6 +2908,7 @@ RDoc:
   extensions:
   - .rdoc
   tm_scope: text.rdoc
+  color: "#8E84BF"
 
 REALbasic:
   type: programming
@@ -3086,6 +3100,7 @@ Rust:
   color: "#dea584"
   extensions:
   - .rs
+  - .rs.in
   ace_mode: rust
 
 SAS:
@@ -3103,6 +3118,7 @@ SCSS:
   ace_mode: scss
   extensions:
   - .scss
+  color: "#CF649A"
 
 SMT:
   type: programming
@@ -3205,6 +3221,7 @@ Sass:
   extensions:
   - .sass
   ace_mode: sass
+  color: "#CF649A"
 
 Scala:
   type: programming
@@ -3570,7 +3587,6 @@ Unified Parallel C:
 Unity3D Asset:
   type: data
   ace_mode: yaml
-  color: "#ab69a1"
   extensions:
   - .anim
   - .asset
@@ -3858,6 +3874,7 @@ XSLT:
   - .xsl
   tm_scope: text.xml.xsl
   ace_mode: xml
+  color: "#EB8CEB"
 
 Xojo:
   type: programming
@@ -3899,6 +3916,7 @@ Yacc:
   - .yy
   tm_scope: source.bison
   ace_mode: text
+  color: "#4B6C4B"
 
 Zephir:
   type: programming
@@ -3938,7 +3956,6 @@ eC:
 edn:
   type: data
   ace_mode: clojure
-  color: "#db5855"
   extensions:
   - .edn
   tm_scope: source.clojure
@@ -3983,6 +4000,7 @@ reStructuredText:
   - .rest.txt
   - .rst.txt
   ace_mode: text
+  color: "#B3BCBC"
 
 wisp:
   type: programming
