@@ -10,10 +10,12 @@ import (
 	"sort"
 
 	"github.com/generaltso/linguist"
+	"github.com/shibukawa/git4go"
 )
 
 func checkErr(err error) {
 	if err != nil {
+		log.Panicln(err)
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -111,7 +113,15 @@ func main() {
 	}
 
 	if input_mode_git {
-		processTree(input_git_tree, []string{})
+		repo, err := git4go.OpenRepository(".")
+		checkErr(err)
+		ref, err := repo.DwimReference(input_git_tree)
+		checkErr(err)
+		resolved, err := ref.Resolve()
+		checkErr(err)
+		odb, err := repo.Odb()
+		checkErr(err)
+		processTree(repo, odb, resolved.Target(), []string{})
 	}
 
 	results := []float64{}

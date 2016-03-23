@@ -1,73 +1,54 @@
 package main
 
 import (
-	"fmt"
-	"io"
 	"log"
-	"os/exec"
 	"path/filepath"
-	"strconv"
-	"strings"
 
 	"github.com/generaltso/linguist"
+	"github.com/shibukawa/git4go"
 )
 
-func catfile(hash string) []byte {
-	log.Println("git cat-file blob", hash)
-	blob := make([]byte, 512)
-	git := exec.Command("git", "cat-file", "blob", hash)
-	stdout, err := git.StdoutPipe()
-	checkErr(err)
-	checkErr(git.Start())
-	n, err := stdout.Read(blob)
-	log.Printf("Read %d bytes from %s", n, hash)
-	if err != io.EOF {
+func processTree(repo *git4go.Repository, odb *git4go.Odb, tree_id *git4go.Oid, parent []string) {
+	var tree *git4go.Tree
+	var commit *git4go.Commit
+	commit, err := repo.LookupCommit(tree_id)
+	if err != nil {
+		obj, errr := repo.Lookup(tree_id)
+		checkErr(errr)
+		switch obj.Type() {
+		case git4go.ObjectTree:
+			tree = obj.(*git4go.Tree)
+		case git4go.ObjectCommit:
+			commit = obj.(*git4go.Commit)
+		default:
+			log.Panicln("%#v not a tree object", obj)
+		}
+	}
+	if commit != nil {
+		tree, err = commit.Tree()
 		checkErr(err)
 	}
-	git.Process.Kill()
-	return blob
-}
-
-func gitcmd(args string) []byte {
-	log.Println("git", args)
-	git := exec.Command("sh", "-c", "git "+args)
-	out, err := git.CombinedOutput()
-	if err != nil {
-		fmt.Println(string(out))
-	}
-	checkErr(err)
-	return out
-}
-
-func gitcmdString(args string) string {
-	return string(gitcmd(args))
-}
-
-func processTree(tree_id string, parent []string) {
-	ls_tree := gitcmdString("ls-tree " + tree_id)
-	for _, ln := range strings.Split(ls_tree, "\n") {
-		fields := strings.Split(ln, " ")
-		if len(fields) != 3 {
-			continue
-		}
-		//fmode := fields[0]
-		ftype := fields[1]
-		fields = strings.Split(fields[2], "\t")
-		if len(fields) != 2 {
-			continue
-		}
-		fhash := fields[0]
-		fname := fields[1]
+	for _, entry := range tree.Entries {
+		//fmode := fmt.Sprintf("%06o", int(entry.Filemode))
+		ftype := entry.Type.String()
+		fhash := entry.Id.String()
+		fname := entry.Name
 
 		switch ftype {
 		case "tree":
 			log.Println("entering subtree", fname)
-			processTree(fhash, append(parent, fname))
+			oid, err := git4go.NewOid(fhash)
+			checkErr(err)
+			processTree(repo, odb, oid, append(parent, fname))
 		case "blob":
 			fname = filepath.Join(append(parent, fname)...)
-			cat_size := gitcmdString("cat-file -s " + fhash)
-			size, err := strconv.Atoi(strings.TrimSpace(cat_size))
+
+			oid, err := git4go.NewOid(fhash)
 			checkErr(err)
+			obj, err := odb.Read(oid)
+			checkErr(err)
+
+			size := len(obj.Data)
 
 			log.Println(fname, "is", size, "bytes")
 			if size == 0 {
@@ -87,7 +68,7 @@ func processTree(tree_id string, parent []string) {
 				continue
 			}
 
-			contents := catfile(fhash)
+			contents := obj.Data
 
 			if linguist.ShouldIgnoreContents(contents) {
 				log.Println(fname, ": contents should be ignored, skipping")
