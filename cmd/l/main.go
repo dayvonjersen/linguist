@@ -15,38 +15,50 @@ import (
 
 func checkErr(err error) {
 	if err != nil {
-		log.Panicln(err)
-		fmt.Println(err)
-		os.Exit(1)
+		if output_debug {
+			log.Panicln(err)
+		} else {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 }
 
-var input_mode_git bool
-var input_mode_fs bool
-var input_git_tree string
-var output_json bool
-var output_json_with_colors bool
-var output_limit int
-var output_debug bool
-var unignore_filenames bool
-var unignore_contents bool
+// flag vars
+var (
+	input_mode_git          bool
+	input_mode_fs           bool
+	input_git_tree          string
+	output_json             bool
+	output_json_with_colors bool
+	output_limit            int
+	output_debug            bool
+	unignore_filenames      bool
+	unignore_contents       bool
+)
 
-type language struct {
-	Language string
-	Percent  float64
-}
+// used for displaying results
+type (
+	language struct {
+		Language string  `json:"language"`
+		Percent  float64 `json:"percent"`
+	}
 
-type language_color struct {
-	Language string
-	Percent  float64
-	Color    string
-}
+	language_color struct {
+		Language string  `json:"language"`
+		Percent  float64 `json:"percent"`
+		Color    string  `json:"color"`
+	}
+)
 
-var langs map[string]int = make(map[string]int)
-var total_size int = 0
-var res map[string]int = make(map[string]int)
-var num_files int = 0
-var max_len int = 0
+var (
+	langs         map[string]int = make(map[string]int)
+	total_size    int            = 0
+	res           map[string]int = make(map[string]int)
+	num_files     int            = 0
+	max_len       int            = 0
+	ignored_paths int            = 0
+)
 
 func putResult(language string, size int) {
 	res[language]++
@@ -57,17 +69,60 @@ func putResult(language string, size int) {
 		max_len = len(language)
 	}
 }
+func pluralize(num int) string {
+	if num == 1 {
+		return ""
+	}
+	return "s"
+}
 
 func main() {
-	flag.BoolVar(&output_debug, "debug", false, "Print debug information.")
-	flag.BoolVar(&input_mode_git, "git", false, "Scan for files using git ls-tree and cat-file, rather than filesystem.")
-	flag.BoolVar(&input_mode_fs, "fs", false, "Scan for files using filesystem.")
-	flag.StringVar(&input_git_tree, "git-tree", "HEAD", "tree-ish root to scan. See also man git(1).")
-	flag.BoolVar(&output_json, "json", false, "Output results in JSON format.")
-	flag.BoolVar(&output_json_with_colors, "json-with-colors", false, "Output results in JSON format, including any HTML color codes defined for associated languages.")
-	flag.IntVar(&output_limit, "limit", 10, "Limit result set to n results. n <= 0 indicates unlimited result set.")
-	flag.BoolVar(&unignore_filenames, "unignore-filenames", false, "Do NOT skip processing ignored file types based on filename (NOT RECOMMENDED)")
-	flag.BoolVar(&unignore_contents, "unignore-contents", false, "Do NOT skip processing ignored file types based on contents (NOT RECOMMENDED)")
+	flag.BoolVar(
+		&output_debug,
+		"debug", false,
+		"Print debug information.",
+	)
+	flag.BoolVar(
+		&input_mode_git,
+		"git", false,
+		"Scan for files using git ls-tree and cat-file, rather than filesystem.",
+	)
+	flag.BoolVar(
+		&input_mode_fs,
+		"fs", false,
+		"Scan for files using filesystem.",
+	)
+	flag.StringVar(
+		&input_git_tree,
+		"git-tree", "HEAD",
+		"tree-ish root to scan. See also man git(1).",
+	)
+	flag.BoolVar(
+		&output_json,
+		"json", false,
+		"Output results in JSON format.",
+	)
+	flag.BoolVar(
+		&output_json_with_colors,
+		"json-with-colors", false,
+		"Output results in JSON format, including any HTML color codes defined for associated languages.",
+	)
+	flag.IntVar(
+		&output_limit,
+		"limit", 10,
+		"Limit number of languages to n results. n <= 0 for unlimited.",
+	)
+	flag.BoolVar(
+		&unignore_filenames,
+		"unignore-filenames", false,
+		"Do NOT skip processing ignored file types based on filename (NOT RECOMMENDED)",
+	)
+	flag.BoolVar(
+		&unignore_contents,
+		"unignore-contents", false,
+		"Do NOT skip processing ignored file types based on contents (NOT RECOMMENDED)",
+	)
+
 	flag.Parse()
 
 	output_json = output_json || output_json_with_colors
@@ -76,8 +131,10 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	var default_input_mode_git bool
-	var default_input_mode_fs bool
+	var (
+		default_input_mode_git bool
+		default_input_mode_fs  bool
+	)
 	if fileExists(".git") {
 		default_input_mode_git = true
 		default_input_mode_fs = false
@@ -167,5 +224,6 @@ func main() {
 		}
 		fmt.Printf(fmtstr, qqq[percent], percent)
 	}
-	fmt.Printf("\n%d languages detected in %d files\n", len(langs), num_files)
+	fmt.Printf("\n%d language%s detected in %d file%s\n", len(langs), pluralize(len(langs)), num_files, pluralize(num_files))
+	fmt.Printf("%d ignored path%s\n", ignored_paths, pluralize(ignored_paths))
 }

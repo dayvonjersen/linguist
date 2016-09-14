@@ -20,6 +20,7 @@ $ l
 Markdown: 01.0001%
 
 2 languages detected in 10 files
+0 ignored paths
 ```
 
 #### flags:
@@ -65,16 +66,16 @@ By default, this tool will use `-git` behavior if a `.git` directory exists, oth
 tso@chopstick ~/sirupeuse (master) $ l -json -limit 3
 [
   {
-    "Language": "SVG",
-    "Percent": 38.07195038817389
+    "language": "SVG",
+    "percent": 38.07195038817389
   },
   {
-    "Language": "HTML",
-    "Percent": 20.51148776433667
+    "language": "HTML",
+    "percent": 20.51148776433667
   },
   {
-    "Language": "JavaScript",
-    "Percent": 18.27789994256565
+    "language": "JavaScript",
+    "percent": 18.27789994256565
   }
 ]
 ```
@@ -87,19 +88,19 @@ tso@chopstick ~/sirupeuse (master) $ l -json -limit 3
 tso@chopstick ~/sirupeuse (master) $ l -json-with-colors -limit 3
 [
   {
-    "Language": "SVG",
-    "Percent": 38.07195038817389,
-    "Color": ""
+    "language": "SVG",
+    "percent": 38.07195038817389,
+    "color": ""
   },
   {
-    "Language": "HTML",
-    "Percent": 20.51148776433667,
-    "Color": "#e44b23"
+    "language": "HTML",
+    "percent": 20.51148776433667,
+    "color": "#e44b23"
   },
   {
-    "Language": "JavaScript",
-    "Percent": 18.27789994256565,
-    "Color": "#f1e05a"
+    "language": "JavaScript",
+    "percent": 18.27789994256565,
+    "color": "#f1e05a"
   }
 ]
 ```
@@ -108,7 +109,7 @@ Please note that `Color` will be the empty string `""` if no color is associated
 
 ### -limit n
 
-> Limit result set to `n` results, where `n` is a number `> 0`.
+> Limit number of languages to `n` results, where `n` is a number `> 0`.
 
 > Default is 10.
 

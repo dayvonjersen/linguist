@@ -104,6 +104,7 @@ func processDir(dirname string) {
 		}
 		if !unignore_filenames && isIgnored(path) {
 			log.Println(path, "is ignored, skipping")
+			ignored_paths++
 			if file.IsDir() {
 				return filepath.SkipDir
 			}
@@ -117,6 +118,7 @@ func processDir(dirname string) {
 		} else {
 			if !unignore_filenames && linguist.ShouldIgnoreFilename(path) {
 				log.Println(path, ": filename should be ignored, skipping")
+				ignored_paths++
 				return nil
 			}
 
@@ -131,6 +133,7 @@ func processDir(dirname string) {
 
 			if !unignore_contents && linguist.ShouldIgnoreContents(contents) {
 				log.Println(path, ": contents should be ignored, skipping")
+				ignored_paths++
 				return nil
 			}
 
