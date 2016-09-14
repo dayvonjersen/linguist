@@ -28,6 +28,8 @@ var output_json bool
 var output_json_with_colors bool
 var output_limit int
 var output_debug bool
+var unignore_filenames bool
+var unignore_contents bool
 
 type language struct {
 	Language string
@@ -64,6 +66,8 @@ func main() {
 	flag.BoolVar(&output_json, "json", false, "Output results in JSON format.")
 	flag.BoolVar(&output_json_with_colors, "json-with-colors", false, "Output results in JSON format, including any HTML color codes defined for associated languages.")
 	flag.IntVar(&output_limit, "limit", 10, "Limit result set to n results. n <= 0 indicates unlimited result set.")
+	flag.BoolVar(&unignore_filenames, "unignore-filenames", false, "Do NOT skip processing ignored file types based on filename (NOT RECOMMENDED)")
+	flag.BoolVar(&unignore_contents, "unignore-contents", false, "Do NOT skip processing ignored file types based on contents (NOT RECOMMENDED)")
 	flag.Parse()
 
 	output_json = output_json || output_json_with_colors

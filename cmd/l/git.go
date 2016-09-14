@@ -56,7 +56,7 @@ func processTree(repo *git4go.Repository, odb *git4go.Odb, tree_id *git4go.Oid, 
 				continue
 			}
 
-			if linguist.ShouldIgnoreFilename(fname) {
+			if !unignore_filenames && linguist.ShouldIgnoreFilename(fname) {
 				log.Println(fname, ": filename should be ignored, skipping")
 				continue
 			}
@@ -70,7 +70,7 @@ func processTree(repo *git4go.Repository, odb *git4go.Odb, tree_id *git4go.Oid, 
 
 			contents := obj.Data
 
-			if linguist.ShouldIgnoreContents(contents) {
+			if !unignore_contents && linguist.ShouldIgnoreContents(contents) {
 				log.Println(fname, ": contents should be ignored, skipping")
 				continue
 			}
