@@ -44,7 +44,7 @@ var doxRE *regexp.Regexp
 
 func init() {
 	var regexps []string
-	bytes := []byte(files["data/vendor.yaml"])
+	bytes := []byte(files["data/vendor.yml"])
 	if err := yaml.Unmarshal(bytes, &regexps); err != nil {
 		log.Fatal(err)
 		return
@@ -52,7 +52,7 @@ func init() {
 	vendorRE = regexp.MustCompile(strings.Join(regexps, "|"))
 
 	var moreregex []string
-	bytes = []byte(files["data/documentation.yaml"])
+	bytes = []byte(files["data/documentation.yml"])
 	if err := yaml.Unmarshal(bytes, &moreregex); err != nil {
 		log.Fatal(err)
 		return
@@ -63,14 +63,14 @@ func init() {
 // IsVendored returns true if path is considered "vendored" and should
 // be excluded from statistics.
 //
-// See also the data/vendor.yaml file distributed with this package.
+// See also the data/vendor.yml file distributed with this package.
 func IsVendored(path string) bool {
 	return vendorRE.MatchString(path)
 }
 
 // IsDocumentation returns true if path is considered documentation.
 //
-// See also the data/documentation.yaml file distributed with this package.
+// See also the data/documentation.yml file distributed with this package.
 func IsDocumentation(path string) bool {
 	return doxRE.MatchString(path)
 }

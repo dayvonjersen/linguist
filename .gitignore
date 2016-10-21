@@ -5,3 +5,7 @@ generate_classifier/out/*
 !generate_classifier/out/.keep
 !generate_classifier/out/classifier
 cmd/l/l
+data/data.go
+data/classifier
+data/*.yml
+static.go

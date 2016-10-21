@@ -21,7 +21,7 @@ func processTree(repo *git4go.Repository, odb *git4go.Odb, tree_id *git4go.Oid, 
 		case git4go.ObjectCommit:
 			commit = obj.(*git4go.Commit)
 		default:
-			log.Panicln("%#v not a tree object", obj)
+			log.Panicf("%#v not a tree object", obj)
 		}
 	}
 	if commit != nil {

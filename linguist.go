@@ -44,7 +44,7 @@ func init() {
 	}
 	languages := map[string]*language{}
 
-	bytes := []byte(files["data/languages.yaml"])
+	bytes := []byte(files["data/languages.yml"])
 	if err := yaml.Unmarshal(bytes, languages); err != nil {
 		log.Fatal(err)
 	}
@@ -65,7 +65,7 @@ func init() {
 
 // Convenience function that returns the color associated
 // with the language, in HTML Hex notation (e.g. "#123ABC")
-// from the languages.yaml provided by github.com/github/linguist
+// from the languages.yml provided by github.com/github/linguist
 //
 // returns empty string if there is no associated color for the language
 func LanguageColor(language string) string {
