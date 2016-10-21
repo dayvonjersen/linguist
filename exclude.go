@@ -97,7 +97,10 @@ func IsDocumentation(path string) bool {
 //
 // Further analysis and real world testing of this is required.
 func IsBinary(contents []byte) (probably bool) {
-	for _, b := range contents[:512] {
+	for n, b := range contents {
+		if n >= 512 {
+			break
+		}
 		if b < 32 {
 			switch b {
 			case 0:
