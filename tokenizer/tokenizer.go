@@ -62,12 +62,6 @@ func init() {
 	}
 }
 
-func checkErr(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 // If the given token matches the start of a multi-line comment,
 // this function will return true and a regex for the corresponding closing token,
 // otherwise false and nil.
