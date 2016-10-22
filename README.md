@@ -17,24 +17,16 @@ go get github.com/jteeuwen/go-bindata/go-bindata
 ```
 
 ```
+mkdir -p $GOPATH/src/github.com/generaltso/linguist
+git clone --depth=1 https://github.com/generaltso/linguist $GOPATH/src/github.com/generaltso/linguist
 go get -d github.com/generaltso/linguist
 cd $GOPATH/src/github.com/generaltso/linguist
 make
+l
 ```
-
-### optional
-
-```
-go install github.com/generaltso/linguist/cmd/l
-
-```
-
-[the command-line reference implentation](cmd/l) is documented separately
 
 ## see also
 
-[the tokenizer I made for this project](tokenizer/tokenizer.go) which you can import:
+[command-line reference implentation](cmd/l) which is documented separately
 
-```
-import "github.com/generaltso/linguist/tokenizer"
-```
+[tokenizer](tokenizer/tokenizer.go) | ([godoc reference](https://godoc.org/github.com/generaltso/linguist/tokenizer))

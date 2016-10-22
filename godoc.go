@@ -8,13 +8,12 @@ Prerequisites:
 
 Installation:
 
+    mkdir -p $GOPATH/src/github.com/generaltso/linguist
+    git clone --depth=1 https://github.com/generaltso/linguist $GOPATH/src/github.com/generaltso/linguist
     go get -d github.com/generaltso/linguist
     cd $GOPATH/src/github.com/generaltso/linguist
     make
-
-Optional:
-    go install github.com/generaltso/linguist/cmd/l
-
+    l
 
 Usage:
 
