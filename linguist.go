@@ -65,9 +65,9 @@ func init() {
 
 // Convenience function that returns the color associated
 // with the language, in HTML Hex notation (e.g. "#123ABC")
-// from the languages.yml provided by github.com/github/linguist
+// from the languages.yml file provided by https://github.com/github/linguist
 //
-// returns empty string if there is no associated color for the language
+// Returns the empty string if there is no associated color for the language.
 func LanguageColor(language string) string {
 	if c, ok := colors[language]; ok {
 		return c
@@ -75,9 +75,11 @@ func LanguageColor(language string) string {
 	return ""
 }
 
-// LanguageByFilename attempts to detect the language of a file,
-// based only on its name, returning the empty string in ambiguous
-// or unrecognized cases.
+// Attempts to determine the language of a source file based solely on 
+// common naming conventions and file extensions
+// from the languages.yml file provided by https://github.com/github/linguist
+//
+// Returns the empty string in ambiguous or unrecognized cases.
 func LanguageByFilename(filename string) string {
 	if l := filenames[filename]; len(l) == 1 {
 		return l[0]
@@ -91,11 +93,13 @@ func LanguageByFilename(filename string) string {
 	return ""
 }
 
-// Similarly to LanguageByFilename, LanguageHints attempts to detect
-// the language of a file based solely on its name, returning all known
-// possiblities as a slice of strings.
+// Attempts to detect all possible languages of a source file based solely on 
+// common naming conventions and file extensions
+// from the languages.yml file provided by https://github.com/github/linguist
 //
 // Intended to be used with LanguageByContents.
+//
+// May return an empty slice.
 func LanguageHints(filename string) (hints []string) {
 	if l, ok := filenames[filename]; ok {
 		hints = append(hints, l...)
@@ -108,10 +112,12 @@ func LanguageHints(filename string) (hints []string) {
 	return hints
 }
 
-// LanguageByContents attempts to detect the language based on its
-// contents and a slice of hints to the possible answer (obtained with
-// LanguageHints), returning the empty string a language could not be
-// determined.
+// Attempts to detect the language of a source file based on its
+// contents and a slice of hints to the possible answer.
+//
+// Obtain hints with LanguageHints()
+//
+// Returns the empty string a language could not be determined.
 func LanguageByContents(contents []byte, hints []string) string {
 	interpreter := detectInterpreter(contents)
 	if interpreter != "" {
@@ -119,7 +125,7 @@ func LanguageByContents(contents []byte, hints []string) string {
 			return l[0]
 		}
 	}
-	return analyse(contents, hints)
+	return Analyse(contents, hints)
 }
 
 func detectInterpreter(contents []byte) string {

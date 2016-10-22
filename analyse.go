@@ -36,13 +36,17 @@ func getClassifier() *bayesian.Classifier {
 	return classifier
 }
 
-// Uses Naive Bayesian Classification on the file contents provided
+// Uses Naive Bayesian Classification on the file contents provided.
 //
 // Returns the name of a programming language, or the empty string if one could
 // not be determined.
 //
+// It is recommended to use LanguageByContents() instead of this function directly.
+//
+// Obtain hints from LanguageHints()
+//
 // NOTE(tso): May yield inaccurate results
-func analyse(contents []byte, hints []string) (language string) {
+func Analyse(contents []byte, hints []string) (language string) {
 	document := tokenizer.Tokenize(contents)
 	classifier := getClassifier()
 	scores, idx, _ := classifier.LogScores(document)

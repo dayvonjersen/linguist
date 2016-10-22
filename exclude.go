@@ -23,18 +23,16 @@ import (
 	"gopkg.in/yaml.v1"
 )
 
-// ShouldIgnoreFilename returns true if filename matches known files which
-// typically should not be passed to LanguageByFilename.
+// Checks if filename should not be passed to LanguageByFilename.
 //
-// Right now, this simply calls IsVendored and IsDocumentation.
+// (this simply calls IsVendored and IsDocumentation)
 func ShouldIgnoreFilename(filename string) bool {
 	return IsVendored(filename) || IsDocumentation(filename)
 }
 
-// ShouldIgnoreContents returns true if contents match known files which
-// typically should not be passed to LangugeByContents.
+// Checks if contents should not be passed to LangugeByContents.
 //
-// Right now, this simply calls IsBinary.
+// (this simply calls IsBinary)
 func ShouldIgnoreContents(contents []byte) bool {
 	return IsBinary(contents)
 }
@@ -60,45 +58,39 @@ func init() {
 	doxRE = regexp.MustCompile(strings.Join(moreregex, "|"))
 }
 
-// IsVendored returns true if path is considered "vendored" and should
-// be excluded from statistics.
-//
-// See also the data/vendor.yml file distributed with this package.
+// Checks if path contains a filename commonly belonging to configuration files.
 func IsVendored(path string) bool {
 	return vendorRE.MatchString(path)
 }
 
-// IsDocumentation returns true if path is considered documentation.
-//
-// See also the data/documentation.yml file distributed with this package.
+// Checks if path contains a filename commonly belonging to documentation.
 func IsDocumentation(path string) bool {
 	return doxRE.MatchString(path)
 }
 
-// IsBinary checks contents for known character escape codes which
+// Checks contents for known character escape codes which
 // frequently show up in binary files but rarely (if ever) in text.
 //
-// Use this check before using DetectFromContents to reduce likelihood
-// of passing binary data into it.
-//
-// NOTE(tso): preliminary testing on this method of checking for binary
-// contents were promising, having fed a document consisting of all
-// utf-8 codepoints from 0000 to FFFF with satisfactory results. Thanks
-// to robpike.io/cmd/unicode:
-// ```
-// unicode -c $(seq 0 65535 | xargs printf "%04x ") | tr -d '\n' > unicode_test
-// ```
-//
-// However, the intentional presence of character escape codes to throw
-// this function off is entirely possible, as is, potentially, a binary
-// file consisting entirely of the 4 exceptions to the rule for the first
-// 512 bytes. It is also possible that more character escape codes need
-// to be added.
-//
-// Further analysis and real world testing of this is required.
-func IsBinary(contents []byte) (probably bool) {
-	for n, b := range contents {
-		if n >= 512 {
+// Use this check before using LanguageFromContents to reduce likelihood
+// of passing binary data into it which can cause inaccurate results.
+func IsBinary(contents []byte) bool {
+    // NOTE(tso): preliminary testing on this method of checking for binary
+    // contents were promising, having fed a document consisting of all
+    // utf-8 codepoints from 0000 to FFFF with satisfactory results. Thanks
+    // to robpike.io/cmd/unicode:
+    // ```
+    // unicode -c $(seq 0 65535 | xargs printf "%04x ") | tr -d '\n' > unicode_test
+    // ```
+    //
+    // However, the intentional presence of character escape codes to throw
+    // this function off is entirely possible, as is, potentially, a binary
+    // file consisting entirely of the 4 exceptions to the rule for the first
+    // 512 bytes. It is also possible that more character escape codes need
+    // to be added.
+    //
+    // Further analysis and real world testing of this is required.
+    for n, b := range contents {
+        if n >= 512 {
 			break
 		}
 		if b < 32 {

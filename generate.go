@@ -1,4 +1,5 @@
 package linguist
+
 //go:generate git submodule init
 //go:generate git submodule update
 //go:generate cp data/linguist/lib/linguist/languages.yml data/
