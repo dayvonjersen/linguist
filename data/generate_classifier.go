@@ -115,16 +115,17 @@ func main() {
 	}()
 
 	// (concurrently reads and tokenizes files)
+	// TODO(tso): fix concurrency
 	for _, s := range sampleFiles {
-		go func() {
-			f, err := os.Open(s.fp)
-			checkErr(err)
-			contents, err := ioutil.ReadAll(f)
-			f.Close()
-			checkErr(err)
-			s.tokens = tokenizer.Tokenize(contents)
-			sampleChan <- s
-		}()
+		// go func() {
+		f, err := os.Open(s.fp)
+		checkErr(err)
+		contents, err := ioutil.ReadAll(f)
+		f.Close()
+		checkErr(err)
+		s.tokens = tokenizer.Tokenize(contents)
+		sampleChan <- s
+		// }()
 	}
 
 	// once that's done
