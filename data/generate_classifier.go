@@ -12,13 +12,21 @@
 package main
 
 import (
+	"container/heap"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"runtime"
 
 	"github.com/generaltso/linguist/tokenizer"
 	"github.com/jbrukh/bayesian"
 )
+
+type sampleFile struct {
+	lang, fp string
+	tokens   []string
+}
 
 func main() {
 	const (
@@ -27,20 +35,14 @@ func main() {
 		quiet      = false
 	)
 
+	log.SetFlags(0)
 	if quiet {
 		log.SetOutput(ioutil.Discard)
-	}
-
-	// the sample files are stored into structs
-	type sampleFile struct {
-		lang, fp string
-		tokens   []string
 	}
 
 	// first we only read all the paths of the sample files
 	// and their corresponding and language names into:
 	sampleFiles := []*sampleFile{}
-
 	// and store all the language names into:
 	languages := []string{}
 
@@ -73,7 +75,7 @@ func main() {
 			log.Println("unexpected file:", lang)
 			continue
 		}
-		log.Println("Found Language:", lang)
+
 		languages = append(languages, lang)
 
 		samplePath := sourcePath + "/" + lang
@@ -83,41 +85,27 @@ func main() {
 		for _, file := range files {
 			fp := samplePath + "/" + file.Name()
 			if file.IsDir() {
-				log.Println("Skipping subdirectory", fp, "...")
+				// Skip subdirectories
 				continue
 			}
 			sampleFiles = append(sampleFiles, &sampleFile{lang, fp, nil})
 		}
 	}
+	log.Println("Found", len(languages), "languages in", len(sampleFiles), "files")
 
-	log.Println("Parsing files...")
+	// simple progress bar
+	progress := 0.0
+	total := float64(len(sampleFiles)) * 2.0
+	progressBar := func() {
+		progress++
+		fmt.Printf("Processing files ... %.2f%%\r", progress/total*100.0)
+	}
+
 	// then we concurrently read and tokenize the samples
 	sampleChan := make(chan *sampleFile)
 	readyChan := make(chan struct{})
 	received := 0
-	// and store them in a map of languages as keys and slices of tokens as values
-	dox := map[string][]string{}
-	// (receives the processed files and stores their tokens with their language)
-	go func() {
-		for {
-			s := <-sampleChan
-			if doc, ok := dox[s.lang]; ok {
-				dox[s.lang] = append(doc, s.tokens...)
-			} else {
-				dox[s.lang] = s.tokens
-			}
-			received++
-			if received == len(sampleFiles) {
-				close(readyChan)
-				return
-			}
-		}
-	}()
-
-	// (concurrently reads and tokenizes files)
-	// TODO(tso): fix concurrency
-	for _, s := range sampleFiles {
-		// go func() {
+	tokenize := func(s *sampleFile) {
 		f, err := os.Open(s.fp)
 		checkErr(err)
 		contents, err := ioutil.ReadAll(f)
@@ -125,11 +113,40 @@ func main() {
 		checkErr(err)
 		s.tokens = tokenizer.Tokenize(contents)
 		sampleChan <- s
-		// }()
+	}
+	dox := map[string][]string{}
+	for _, lang := range languages {
+		dox[lang] = []string{}
+	}
+	// this receives the processed files and stores their tokens with their language
+	go func() {
+		for {
+			s := <-sampleChan
+			dox[s.lang] = append(dox[s.lang], s.tokens...)
+			received++
+			progressBar()
+			if received == len(sampleFiles) {
+				close(readyChan)
+				return
+			}
+		}
+	}()
+
+	// this balances the workload (implementation at end of file)
+	requests := getRequestsChan(len(sampleFiles))
+	for i := range sampleFiles {
+		requests <- &request{
+			workFn: tokenize,
+			arg:    sampleFiles[i],
+		}
+		progressBar()
 	}
 
 	// once that's done
 	<-readyChan
+	close(requests)
+	fmt.Println() // for the progress bar
+
 	// we train the classifier in the arbitrary manner that its API demands
 	classes := make([]bayesian.Class, 1)
 	documents := make(map[bayesian.Class][]string)
@@ -152,6 +169,83 @@ func main() {
 }
 func checkErr(err error) {
 	if err != nil {
-		log.Fatalln(err)
+		log.Panicln(err)
 	}
+}
+
+// simple load balancer from "concurrency is not parallelism" talk
+type request struct {
+	workFn func(s *sampleFile)
+	arg    *sampleFile
+}
+type worker struct {
+	requests       chan *request
+	pending, index int
+}
+
+func (w *worker) work(done chan *worker) {
+	for {
+		req := <-w.requests
+		req.workFn(req.arg)
+		done <- w
+	}
+}
+
+type pool []*worker
+
+func (p pool) Less(i, j int) bool  { return p[i].pending < p[j].pending }
+func (p pool) Len() int            { return len(p) }
+func (p pool) Swap(i, j int)       { p[i], p[j] = p[j], p[i] }
+func (p *pool) Push(x interface{}) { *p = append(*p, x.(*worker)) }
+func (p *pool) Pop() interface{} {
+	old := *p
+	n := len(old)
+	x := old[n-1]
+	*p = old[0 : n-1]
+	return x
+}
+
+type balancer struct {
+	workers pool
+	done    chan *worker
+}
+
+func (b *balancer) balance(work chan *request) {
+	for {
+		select {
+		case req, ok := <-work:
+			if ok {
+				b.dispatch(req)
+			} else {
+				return
+			}
+		case w := <-b.done:
+			b.completed(w)
+		}
+	}
+}
+func (b *balancer) dispatch(req *request) {
+	w := heap.Pop(&b.workers).(*worker)
+	w.requests <- req
+	w.pending++
+	heap.Push(&b.workers, w)
+}
+func (b *balancer) completed(w *worker) {
+	w.pending--
+	heap.Remove(&b.workers, w.index)
+	heap.Push(&b.workers, w)
+}
+func getRequestsChan(jobs int) chan *request {
+	done := make(chan *worker)
+	workers := make(pool, runtime.GOMAXPROCS(0)*4) // I don't know how many workers there should be
+	for i := 0; i < len(workers); i++ {
+		w := &worker{make(chan *request, jobs), 0, i}
+		go w.work(done)
+		workers[i] = w
+	}
+	heap.Init(&workers)
+	b := &balancer{workers, done}
+	requests := make(chan *request)
+	go b.balance(requests)
+	return requests
 }
