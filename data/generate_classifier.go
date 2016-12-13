@@ -79,7 +79,8 @@ func main() {
 		languages = append(languages, lang)
 
 		samplePath := sourcePath + "/" + lang
-		sampleDir, _ := os.Open(samplePath)
+		sampleDir, err := os.Open(samplePath)
+		checkErr(err)
 		files, err := sampleDir.Readdir(-1)
 		checkErr(err)
 		for _, file := range files {
@@ -90,6 +91,7 @@ func main() {
 			}
 			sampleFiles = append(sampleFiles, &sampleFile{lang, fp, nil})
 		}
+		sampleDir.Close()
 	}
 	log.Println("Found", len(languages), "languages in", len(sampleFiles), "files")
 
