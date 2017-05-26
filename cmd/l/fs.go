@@ -115,7 +115,7 @@ func processDir(dirname string) {
 				log.Println(".git directory, skipping")
 				return filepath.SkipDir
 			}
-		} else {
+		} else if (file.Mode() & os.ModeSymlink) == 0 {
 			if !unignore_filenames && linguist.ShouldIgnoreFilename(path) {
 				log.Println(path, ": filename should be ignored, skipping")
 				ignored_paths++
