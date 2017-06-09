@@ -51,17 +51,29 @@ type (
 	}
 )
 
+type sortableResult []*language
+
+func (s sortableResult) Len() int {
+	return len(s)
+}
+
+func (s sortableResult) Less(i, j int) bool {
+	return s[i].Percent < s[j].Percent
+}
+
+func (s sortableResult) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
 var (
 	langs         map[string]int = make(map[string]int)
 	total_size    int            = 0
-	res           map[string]int = make(map[string]int)
 	num_files     int            = 0
 	max_len       int            = 0
 	ignored_paths int            = 0
 )
 
 func putResult(language string, size int) {
-	res[language]++
 	langs[language] += size
 	total_size += size
 	num_files++
@@ -185,28 +197,27 @@ func main() {
 		processTree(repo, odb, resolved.Target(), []string{})
 	}
 
-	results := []float64{}
-	qqq := map[float64]string{}
-	for lang, num := range langs {
-		res := (float64(num) / float64(total_size)) * 100.0
-		results = append(results, res)
-		qqq[res] = lang
-
+	results := []*language{}
+	for lang, size := range langs {
+		results = append(results, &language{
+			Language: lang,
+			Percent:  (float64(size) / float64(total_size)) * 100.0,
+		})
 	}
 
-	sort.Sort(sort.Reverse(sort.Float64Slice(results)))
+	sort.Sort(sort.Reverse(sortableResult(results)))
 
 	if output_json {
 		out := []interface{}{}
-		for i, percent := range results {
+		for i, lang := range results {
 			if output_limit > 0 && i >= output_limit {
 				break
 			}
 			var l interface{}
 			if output_json_with_colors {
-				l = language_color{qqq[percent], percent, linguist.LanguageColor(qqq[percent])}
+				l = &language_color{lang.Language, lang.Percent, linguist.LanguageColor(lang.Language)}
 			} else {
-				l = language{qqq[percent], percent}
+				l = lang
 			}
 			out = append(out, l)
 		}
@@ -218,12 +229,13 @@ func main() {
 	fmtstr := fmt.Sprintf("%% %ds", max_len)
 	fmtstr += ": %07.4f%%\n"
 
-	for i, percent := range results {
+	for i, l := range results {
 		if output_limit > 0 && i >= output_limit {
 			break
 		}
-		fmt.Printf(fmtstr, qqq[percent], percent)
+		fmt.Printf(fmtstr, l.Language, l.Percent)
 	}
-	fmt.Printf("\n%d language%s detected in %d file%s\n", len(langs), pluralize(len(langs)), num_files, pluralize(num_files))
+
+	fmt.Printf("\n%d language%s detected in %d file%s\n", len(results), pluralize(len(results)), num_files, pluralize(num_files))
 	fmt.Printf("%d ignored path%s\n", ignored_paths, pluralize(ignored_paths))
 }
