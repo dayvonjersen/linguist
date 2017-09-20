@@ -56,6 +56,22 @@ func processTree(repo *git4go.Repository, odb *git4go.Odb, tree_id *git4go.Oid, 
 				continue
 			}
 
+			if o, ok := getOverride(fname); ok {
+				if !unignore_filenames {
+					if o.isVendored || o.isDocumentation || o.isGenerated {
+						log.Println(fname, ": filename should be ignored, skipping (GITATTRIBUTES OVERRIDE)")
+						ignored_paths++
+						continue
+					}
+				}
+				if o.language != "" {
+					by_name := o.language
+					log.Println(fname, "got result by name: ", by_name, "(GITATTRIBUTES OVERRIDE)")
+					putResult(by_name, size)
+					continue
+				}
+			}
+
 			if !unignore_filenames && linguist.ShouldIgnoreFilename(fname) {
 				log.Println(fname, ": filename should be ignored, skipping")
 				ignored_paths++

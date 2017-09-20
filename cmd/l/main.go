@@ -180,6 +180,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	initGitAttributes()
+
 	if input_mode_fs {
 		initGitIgnore()
 		processDir(".")
