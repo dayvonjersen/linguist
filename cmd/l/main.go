@@ -147,7 +147,8 @@ func main() {
 		default_input_mode_git bool
 		default_input_mode_fs  bool
 	)
-	if fileExists(".git") {
+
+	if !input_mode_fs && findGitDir() { // side-effect: cd's to GIT_DIR!
 		default_input_mode_git = true
 		default_input_mode_fs = false
 	} else {

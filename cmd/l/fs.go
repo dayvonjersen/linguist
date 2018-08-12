@@ -153,3 +153,29 @@ func processDir(dirname string) {
 		return nil
 	})
 }
+
+// tries to find GIT_DIR by doing cd .. until it finds .git or reaches fs root
+// in the latter case, it cd's back to the original dir we were in
+func findGitDir() bool {
+	if fileExists(".git") {
+		return true
+	}
+	originalCwd, err := os.Getwd()
+	checkErr(err)
+	oldCwd := originalCwd
+	for {
+		checkErr(os.Chdir(".."))
+		newCwd, err := os.Getwd()
+		checkErr(err)
+		if newCwd == oldCwd {
+			log.Println("could not find GIT_DIR!")
+			checkErr(os.Chdir(originalCwd))
+			return false
+		}
+		if fileExists(".git") {
+			log.Println("found GIT_DIR:", newCwd)
+			return true
+		}
+		oldCwd = newCwd
+	}
+}
