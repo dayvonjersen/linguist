@@ -208,12 +208,19 @@ func main() {
 
 	sort.Sort(sort.Reverse(sortableResult(results)))
 
+	if output_limit > 0 && len(results) > output_limit {
+		other := &language{
+			Language: "Other",
+		}
+		for i := output_limit; i < len(results); i++ {
+			other.Percent += results[i].Percent
+		}
+		results = append(results[0:output_limit], other)
+	}
+
 	if output_json {
 		out := []interface{}{}
-		for i, lang := range results {
-			if output_limit > 0 && i >= output_limit {
-				break
-			}
+		for _, lang := range results {
 			var l interface{}
 			if output_json_with_colors {
 				l = &language_color{lang.Language, lang.Percent, linguist.LanguageColor(lang.Language)}
@@ -230,10 +237,7 @@ func main() {
 	fmtstr := fmt.Sprintf("%% %ds", max_len)
 	fmtstr += ": %07.4f%%\n"
 
-	for i, l := range results {
-		if output_limit > 0 && i >= output_limit {
-			break
-		}
+	for _, l := range results {
 		fmt.Printf(fmtstr, l.Language, l.Percent)
 	}
 
