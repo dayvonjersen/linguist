@@ -219,19 +219,21 @@ func main() {
 	}
 
 	if output_json {
-		out := []interface{}{}
-		for _, lang := range results {
-			var l interface{}
-			if output_json_with_colors {
-				l = &language_color{lang.Language, lang.Percent, linguist.LanguageColor(lang.Language)}
-			} else {
-				l = lang
+		var (
+			json_bytes []byte
+			err        error
+		)
+		if output_json_with_colors {
+			out := []*language_color{}
+			for _, lang := range results {
+				out = append(out, &language_color{lang.Language, lang.Percent, linguist.LanguageColor(lang.Language)})
 			}
-			out = append(out, l)
+			json_bytes, err = json.MarshalIndent(out, "", "  ")
+		} else {
+			json_bytes, err = json.MarshalIndent(results, "", "  ")
 		}
-		j, err := json.MarshalIndent(out, "", "  ")
 		checkErr(err)
-		fmt.Println(string(j))
+		fmt.Println(string(json_bytes))
 		os.Exit(0)
 	}
 	fmtstr := fmt.Sprintf("%% %ds", max_len)
