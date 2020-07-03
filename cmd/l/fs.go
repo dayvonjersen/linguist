@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/generaltso/linguist"
+	"github.com/dayvonjersen/linguist"
 )
 
 var isIgnored func(string) bool

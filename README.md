@@ -1,6 +1,6 @@
 # linguist
 
-[![godoc reference](https://godoc.org/github.com/generaltso/linguist?status.png)](https://godoc.org/github.com/generaltso/linguist)
+[![godoc reference](https://godoc.org/github.com/dayvonjersen/linguist?status.png)](https://godoc.org/github.com/dayvonjersen/linguist)
 
 Go port of [github linguist](https://github.com/github/linguist).
 
@@ -17,10 +17,10 @@ go get github.com/jteeuwen/go-bindata/go-bindata
 ```
 
 ```
-mkdir -p $GOPATH/src/github.com/generaltso/linguist
-git clone --depth=1 https://github.com/generaltso/linguist $GOPATH/src/github.com/generaltso/linguist
-go get -d github.com/generaltso/linguist
-cd $GOPATH/src/github.com/generaltso/linguist
+mkdir -p $GOPATH/src/github.com/dayvonjersen/linguist
+git clone --depth=1 https://github.com/dayvonjersen/linguist $GOPATH/src/github.com/dayvonjersen/linguist
+go get -d github.com/dayvonjersen/linguist
+cd $GOPATH/src/github.com/dayvonjersen/linguist
 make
 l
 ```
@@ -29,4 +29,4 @@ l
 
 [command-line reference implentation](cmd/l) which is documented separately
 
-[tokenizer](tokenizer/tokenizer.go) | ([godoc reference](https://godoc.org/github.com/generaltso/linguist/tokenizer))
+[tokenizer](tokenizer/tokenizer.go) | ([godoc reference](https://godoc.org/github.com/dayvonjersen/linguist/tokenizer))

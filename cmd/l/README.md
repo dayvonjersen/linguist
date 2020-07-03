@@ -2,7 +2,7 @@
 
 A command-line utility to report programming language usage in a project.
 
-A reference implementation of [github.com/generaltso/linguist](https://github.com/generaltso/linguist).
+A reference implementation of [github.com/dayvonjersen/linguist](https://github.com/dayvonjersen/linguist).
 
 ## Usage
 

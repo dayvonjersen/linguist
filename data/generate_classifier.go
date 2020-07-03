@@ -19,7 +19,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/generaltso/linguist/tokenizer"
+	"github.com/dayvonjersen/linguist/tokenizer"
 	"github.com/jbrukh/bayesian"
 )
 

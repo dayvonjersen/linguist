@@ -9,8 +9,8 @@ import (
 	"os"
 	"sort"
 
-	"github.com/generaltso/git4go"
-	"github.com/generaltso/linguist"
+	"github.com/dayvonjersen/git4go"
+	"github.com/dayvonjersen/linguist"
 )
 
 func checkErr(err error) {

@@ -4,8 +4,8 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/generaltso/git4go"
-	"github.com/generaltso/linguist"
+	"github.com/dayvonjersen/git4go"
+	"github.com/dayvonjersen/linguist"
 )
 
 func processTree(repo *git4go.Repository, odb *git4go.Odb, tree_id *git4go.Oid, parent []string) {
