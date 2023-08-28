@@ -182,7 +182,7 @@ func main() {
 	}
 
 	if input_mode_fs {
-		initGitIgnore()
+		initLinguistAttributes()
 		processDir(".")
 	}
 
