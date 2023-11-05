@@ -9,7 +9,6 @@ import (
 	"os"
 	"sort"
 
-	"github.com/dayvonjersen/git4go"
 	"github.com/dayvonjersen/linguist"
 )
 
@@ -66,14 +65,14 @@ func (s sortableResult) Swap(i, j int) {
 }
 
 var (
-	langs         map[string]int = make(map[string]int)
-	total_size    int            = 0
-	num_files     int            = 0
-	max_len       int            = 0
-	ignored_paths int            = 0
+	langs         map[string]int64 = make(map[string]int64)
+	total_size    int64            = 0
+	num_files     int              = 0
+	max_len       int              = 0
+	ignored_paths int              = 0
 )
 
-func putResult(language string, size int) {
+func putResult(language string, size int64) {
 	langs[language] += size
 	total_size += size
 	num_files++
@@ -81,6 +80,7 @@ func putResult(language string, size int) {
 		max_len = len(language)
 	}
 }
+
 func pluralize(num int) string {
 	if num == 1 {
 		return ""
@@ -187,15 +187,7 @@ func main() {
 	}
 
 	if input_mode_git {
-		repo, err := git4go.OpenRepository(".")
-		checkErr(err)
-		ref, err := repo.DwimReference(input_git_tree)
-		checkErr(err)
-		resolved, err := ref.Resolve()
-		checkErr(err)
-		odb, err := repo.Odb()
-		checkErr(err)
-		processTree(repo, odb, resolved.Target(), []string{})
+		processRepoTreeAt(".", input_git_tree)
 	}
 
 	results := []*language{}

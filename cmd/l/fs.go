@@ -95,7 +95,7 @@ func fileExists(filename string) bool {
 
 func processDir(dirname string) {
 	filepath.Walk(dirname, func(path string, file os.FileInfo, err error) error {
-		size := int(file.Size())
+		size := file.Size()
 		log.Println("with file: ", path)
 		log.Println(path, "is", size, "bytes")
 		if size == 0 {
