@@ -1,98 +1,95 @@
 package main
 
 import (
+	"io"
 	"log"
-	"path/filepath"
 
-	"github.com/dayvonjersen/git4go"
 	"github.com/dayvonjersen/linguist"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/filemode"
+	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
-func processTree(repo *git4go.Repository, odb *git4go.Odb, tree_id *git4go.Oid, parent []string) {
-	var tree *git4go.Tree
-	var commit *git4go.Commit
-	commit, err := repo.LookupCommit(tree_id)
-	if err != nil {
-		obj, errr := repo.Lookup(tree_id)
-		checkErr(errr)
-		switch obj.Type() {
-		case git4go.ObjectTree:
-			tree = obj.(*git4go.Tree)
-		case git4go.ObjectCommit:
-			commit = obj.(*git4go.Commit)
-		default:
-			log.Panicf("%#v not a tree object", obj)
+func processRepoTreeAt(path string, refName string) {
+	log.Println("opening repo at", path)
+	repo, err := git.PlainOpen(path)
+	checkErr(err)
+
+	log.Println("resolving revision", refName)
+	hash, err := repo.ResolveRevision(plumbing.Revision(refName))
+	checkErr(err)
+
+	log.Println("getting commit for hash", *hash)
+	commit, err := repo.CommitObject(*hash)
+	checkErr(err)
+
+	log.Println("getting tree for commit")
+	tree, err := commit.Tree()
+	checkErr(err)
+
+	seen := make(map[plumbing.Hash]bool)
+	walker := object.NewTreeWalker(tree, true, seen)
+	defer walker.Close()
+
+	for {
+		name, entry, err := walker.Next()
+		if err == io.EOF {
+			break
 		}
-	}
-	if commit != nil {
-		tree, err = commit.Tree()
 		checkErr(err)
-	}
-	for _, entry := range tree.Entries {
-		//fmode := fmt.Sprintf("%06o", int(entry.Filemode))
-		ftype := entry.Type.String()
-		fhash := entry.Id.String()
-		fname := entry.Name
 
-		switch ftype {
-		case "tree":
-			log.Println("entering subtree", fname)
-			oid, err := git4go.NewOid(fhash)
-			checkErr(err)
-			processTree(repo, odb, oid, append(parent, fname))
-		case "blob":
-			fname = filepath.Join(append(parent, fname)...)
-
-			oid, err := git4go.NewOid(fhash)
-			checkErr(err)
-			obj, err := odb.Read(oid)
-			checkErr(err)
-
-			size := len(obj.Data)
-
-			log.Println(fname, "is", size, "bytes")
-			if size == 0 {
-				log.Println(fname, "is empty file, skipping")
-				continue
-			}
-
-			if !unignore_filenames && linguist.ShouldIgnoreFilename(fname) {
-				log.Println(fname, ": filename should be ignored, skipping")
-				ignored_paths++
-				continue
-			}
-
-			by_name := linguist.LanguageByFilename(fname)
-			if by_name != "" {
-				log.Println(fname, "got result by name: ", by_name)
-				putResult(by_name, size)
-				continue
-			}
-
-			contents := obj.Data
-
-			if !unignore_contents && linguist.ShouldIgnoreContents(contents) {
-				log.Println(fname, ": contents should be ignored, skipping")
-				ignored_paths++
-				continue
-			}
-
-			hints := linguist.LanguageHints(fname)
-			log.Printf("%s got language hints: %#v\n", fname, hints)
-			by_data := linguist.LanguageByContents(contents, hints)
-
-			if by_data != "" {
-				log.Println(fname, "got result by data: ", by_data)
-				putResult(by_data, size)
-				continue
-			}
-			log.Println(fname, "got no result!!")
-			putResult("(unknown)", size)
-		case "commit":
-			log.Println(fname, "is a git submodule (ftype == \"commit\"), skipping")
+		if entry.Mode != filemode.Regular && entry.Mode != filemode.Executable {
 			continue
-		default:
-			println("currently unsupported ftype:" + ftype)
 		}
+
+		log.Println("processing", entry.Mode, name)
+
+		blob, err := repo.BlobObject(entry.Hash)
+		checkErr(err)
+
+		log.Println(name, "is", blob.Size, "bytes")
+		if blob.Size == 0 {
+			log.Println(name, "is empty file, skipping")
+			continue
+		}
+
+		if !unignore_filenames && linguist.ShouldIgnoreFilename(name) {
+			log.Println(name, ": filename should be ignored, skipping")
+			ignored_paths++
+			continue
+		}
+
+		langByName := linguist.LanguageByFilename(name)
+		if langByName != "" {
+			log.Println(name, "got result by name: ", langByName)
+			putResult(langByName, blob.Size)
+			continue
+		}
+
+		r, err := blob.Reader()
+		checkErr(err)
+
+		contents, err := io.ReadAll(r)
+		checkErr(err)
+
+		if !unignore_contents && linguist.ShouldIgnoreContents(contents) {
+			log.Println(name, ": contents should be ignored, skipping")
+			ignored_paths++
+			continue
+		}
+
+		hints := linguist.LanguageHints(name)
+		log.Printf("%s got language hints: %#v\n", name, hints)
+		langByContents := linguist.LanguageByContents(contents, hints)
+
+		if langByContents != "" {
+			log.Println(name, "got result by data: ", langByContents)
+			putResult(langByContents, blob.Size)
+			continue
+		}
+
+		log.Println(name, "got no result!!")
+		putResult("(unknown)", blob.Size)
 	}
 }
