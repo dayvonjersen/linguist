@@ -1,13 +1,14 @@
+//go:build ignore
 // +build ignore
 
 /*
-   This program trains a naive bayesian classifier
-   provided by https://github.com/jbrukh/bayesian
-   on a set of source code files
-   provided by https://github.com/github/linguist
+This program trains a naive bayesian classifier
+provided by https://github.com/jbrukh/bayesian
+on a set of source code files
+provided by https://github.com/github/linguist
 
-   This file is meant by run by go generate,
-   refer to generate.go for its intended invokation
+This file is meant by run by go generate,
+refer to generate.go for its intended invokation
 */
 package main
 
@@ -30,7 +31,7 @@ type sampleFile struct {
 
 func main() {
 	const (
-		sourcePath = "./linguist/samples"
+		sourcePath = "./third_party/linguist/samples"
 		outfile    = "./classifier"
 		quiet      = false
 	)
@@ -153,7 +154,7 @@ func main() {
 	classes := make([]bayesian.Class, 1)
 	documents := make(map[bayesian.Class][]string)
 	for _, lang := range languages {
-		var class = bayesian.Class(lang)
+		class := bayesian.Class(lang)
 		classes = append(classes, class)
 		documents[class] = dox[lang]
 	}
@@ -169,6 +170,7 @@ func main() {
 
 	log.Println("Done.")
 }
+
 func checkErr(err error) {
 	if err != nil {
 		log.Panicln(err)
@@ -226,17 +228,20 @@ func (b *balancer) balance(work chan *request) {
 		}
 	}
 }
+
 func (b *balancer) dispatch(req *request) {
 	w := heap.Pop(&b.workers).(*worker)
 	w.requests <- req
 	w.pending++
 	heap.Push(&b.workers, w)
 }
+
 func (b *balancer) completed(w *worker) {
 	w.pending--
 	heap.Remove(&b.workers, w.index)
 	heap.Push(&b.workers, w)
 }
+
 func getRequestsChan(jobs int) chan *request {
 	done := make(chan *worker)
 	workers := make(pool, runtime.GOMAXPROCS(0)*4) // I don't know how many workers there should be
